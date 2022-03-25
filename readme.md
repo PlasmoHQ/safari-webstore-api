@@ -1,7 +1,33 @@
-# Project 000
+# Safari Webstore Upload
 
-## Publish process
+This module does cool stuff with the Safari Webstore.
 
-1. Commit any changes to the repository.
-2. `pnpm version patch | minor | major`
-3. `pnpm publish`
+Feature includes:
+
+- TypeScript, with type exports
+- Frozen dependencies, updated via renovatebot
+
+## Usage
+
+## nodejs API
+
+```ts
+import { SafariWebstoreClient } from "@plasmo-corp/swu"
+
+const client = new SafariWebstoreClient({
+
+})
+
+
+await client.submit({
+  filePath: zip
+})
+```
+
+# Acknowledgment
+
+- 
+
+# License
+
+[MIT](./license) ⭐ [Plasmo Corp.](https://plasmo.com)
