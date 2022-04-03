@@ -1,0 +1,5 @@
+{
+  "entry": ["src/index.ts"],
+  "format": ["esm"],
+  "onSuccess": "cp -a template/. dist/template/"
+}

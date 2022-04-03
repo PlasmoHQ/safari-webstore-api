@@ -13,8 +13,9 @@
   },
   "scripts": {
     "start": "node ./dist/index.js --dry-run",
-    "dev": "tsup src/index.ts --format esm --watch --sourcemap inline",
-    "build": "tsup src/index.ts --format esm --dts-resolve",
+    "dev": "tsup --watch --sourcemap inline",
+    "snapshot": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --updateSnapshot",
+    "build": "tsup --dts-resolve",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "clean": "rimraf dist",
     "prepublishOnly": "run-s clean build test"
