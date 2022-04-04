@@ -1,0 +1,8 @@
+
+desc "Generate Xcode project"
+lane :generate do |options|
+  output = convert_web_extension(
+    extension: options[:extension]
+  )
+  puts output
+end

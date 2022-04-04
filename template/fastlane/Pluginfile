@@ -1,0 +1,3 @@
+
+# Fetched from GitHub
+gem "fastlane-plugin-safari_web_extension_converter", git: "https://github.com/plasmo-foss/fastlane-plugin-safari-web-extension-converter", branch: 'main'
