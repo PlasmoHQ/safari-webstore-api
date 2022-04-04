@@ -8,5 +8,5 @@ test("test upload test.zip artifact", async () => {
   const res = await client.submit({
     filePath: "test.zip"
   })
-  console.log(res)
+  console.log(`SafariAppStoreClient response: ${res}`)
 })

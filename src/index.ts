@@ -55,9 +55,10 @@ export type AppfileOptions = {
 }
 
 const generateAppfile = async (filePath, options: AppfileOptions) => {
+  console.log("Generating Appfile...")
   const content = Object.entries(options).reduce((acc, entry) => {
     const [key, value] = entry
-    acc[key].push(`${key} "${value}"`)
+    acc.push(`${key} "${value}"`)
     return acc
   }, []).join("\n")
   await fs.writeFile(filePath, content)
@@ -73,10 +74,10 @@ const generateWorkspace = async (zipPath: string) => {
   console.log("Extension extracted to: ", extension)
   await fs.copySync('./template/', dir) // copy Fastlane template
   await installDependencies(dir)
-  console.log("Generating Xcode project...")
-  await fastlane('generate', { extension }, dir)
+  await generateXcodeProject(extension, dir)
   const appfile: AppfileOptions = { app_identifier: "" }
-  await generateAppfile(`${dir}/fastlane/Appfile`, appfile)
+  const appfilePath = await generateAppfile(`${dir}/fastlane/Appfile`, appfile)
+  console.log("Appfile generated at: ", appfilePath)
   return dir
 }
 
@@ -92,6 +93,11 @@ type ConvertWebExtensionParams = {
   mac_only?: boolean
   copy_resources?: boolean
   force?: boolean
+}
+
+const generateXcodeProject = async (extensionPath: string, dir: string) => {
+  console.log("Generating Xcode project...")
+  await fastlane('generate', { extension: extensionPath }, dir)
 }
 
 const fastlane = async (lane: string, params: ConvertWebExtensionParams, cwd: string) => {
