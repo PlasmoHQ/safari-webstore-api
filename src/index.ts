@@ -1,10 +1,14 @@
 
 import fs from "fs-extra"
+import { getVerboseLogger, enableVerboseLogging } from "~util/logging"
 import { extractZip, tmp, ls, emptyDir } from "~util/file"
 import { spawn } from "~util/process"
 
+const vLog = getVerboseLogger()
+
 export type Options = {
   bundleId?: string
+  verbose?: boolean
 }
 
 export const errorMap = {
@@ -30,6 +34,8 @@ export class SafariAppStoreClient {
       }
       this.options[field] = options[field]
     }
+    
+    if (options.verbose) enableVerboseLogging()
   }
 
   async submit(options: SubmitOptions) {
@@ -42,11 +48,11 @@ const workspace = async (filePath: string, path?: string): Promise<string> => {
   const dir = path || await createTmp()
   await fs.ensureDir(dir) // ensure dir exists or create
   if (await emptyDir(dir)) {
-    console.log("Workspace is empty, generating...")
+    vLog("Workspace is empty, generating...")
     await generateWorkspace(dir, filePath)
-    console.log("Workspace generated at: ", dir)
+    vLog("Workspace generated at: ", dir)
   } else if (await validWorkspace(dir)) {
-    console.log("Valid workspace found...")
+    vLog("Valid workspace found...")
   }
   return dir
 }
@@ -60,9 +66,9 @@ const validWorkspace = async (workspacePath: string): Promise<boolean> => {
 }
 
 const createTmp = async () => {
-  console.log("Creating tmp directory...")
+  vLog("Creating tmp directory...")
   const dir = await tmp('plasmo-safari')
-  console.log("Created tmp directory at: ", dir)
+  vLog("Created tmp directory at: ", dir)
   return dir
 }
 
@@ -79,22 +85,22 @@ export type AppfileOptions = {
 }
 
 const generateAppfile = async (filePath, options: AppfileOptions) => {
-  console.log("Generating Appfile...")
+  vLog("Generating Appfile...")
   const content = Object.entries(options).reduce((acc, entry) => {
     const [key, value] = entry
     acc.push(`${key} "${value}"`)
     return acc
   }, []).join("\n")
   await fs.writeFile(filePath, content)
-  console.log("Appfile generated at: ", filePath)
+  vLog("Appfile generated at: ", filePath)
   return filePath
 }
 
 const extractExtension = async (workspacePath: string, zipPath: string) => {
   const extension = `${workspacePath}/extension/`
-  console.log("Extracting extension...")
+  vLog("Extracting extension...")
   await extractZip(zipPath, extension)
-  console.log("Extension extracted to: ", extension)
+  vLog("Extension extracted to: ", extension)
   return extension
 }
 
@@ -122,7 +128,7 @@ type ConvertWebExtensionParams = {
 }
 
 const generateXcodeProject = async (extensionPath: string, dir: string) => {
-  console.log("Generating Xcode project...")
+  vLog("Generating Xcode project...")
   await fastlane('generate', { extension: extensionPath }, dir)
 }
 
@@ -135,6 +141,6 @@ const fastlane = async (lane: string, params: ConvertWebExtensionParams, cwd: st
 }
 
 const installDependencies = async (cwd: string) => {
-  console.log("Installing Ruby dependencies...")
+  vLog("Installing Ruby dependencies...")
   return await spawn('bundle', ['install', '--deployment'], { cwd })
 }
