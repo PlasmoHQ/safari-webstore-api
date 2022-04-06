@@ -1,29 +1,24 @@
 
 import fs from "fs-extra"
-import { extractZip, createTmp } from "~util/file"
+import { extractZip, tmp, ls, emptyDir } from "~util/file"
 import { spawn } from "~util/process"
 
 export type Options = {
-  productId: string
-  clientId: string
-  clientSecret: string
-  accessTokenUrl: string
+  bundleId?: string
 }
 
 export const errorMap = {
-  productId:
-    "Product ID is required. To get one, go to: https://partner.microsoft.com/en-us/dashboard/microsoftedge/{product-id}/package/dashboard",
-  clientId:
-    "Client ID is required. To get one: https://partner.microsoft.com/en-us/dashboard/microsoftedge/publishapi",
-  clientSecret:
-    "Client Secret is required. To get one: https://partner.microsoft.com/en-us/dashboard/microsoftedge/publishapi",
-  accessTokenUrl:
-    "Access token URL is required. To get one: https://partner.microsoft.com/en-us/dashboard/microsoftedge/publishapi"
 }
 
 export const requiredFields = Object.keys(errorMap) as Array<
   keyof typeof errorMap
 >
+
+export type SubmitOptions = {
+  filePath: string // extension zip file path
+  workspacePath?: string // custom static workspace
+}
+
 
 export class SafariAppStoreClient {
   options = {} as Options
@@ -37,9 +32,38 @@ export class SafariAppStoreClient {
     }
   }
 
-  async submit({ filePath = "" }) {
-    const dir = await generateWorkspace(filePath)
+  async submit(options: SubmitOptions) {
+    const { filePath, workspacePath } = options
+    const dir = await workspace(filePath, workspacePath)
   }
+}
+
+const workspace = async (filePath: string, path?: string): Promise<string> => {
+  const dir = path || await createTmp()
+  await fs.ensureDir(dir) // ensure dir exists or create
+  if (await emptyDir(dir)) {
+    console.log("Workspace is empty, generating...")
+    await generateWorkspace(dir, filePath)
+    console.log("Workspace generated at: ", dir)
+  } else if (await validWorkspace(dir)) {
+    console.log("Valid workspace found...")
+  }
+  return dir
+}
+
+const validWorkspace = async (workspacePath: string): Promise<boolean> => {
+  const files = await ls(workspacePath)
+  const requiredFiles = await ls('./template/')
+  const hasRequired = requiredFiles.every(v => files.includes(v))
+  if (!hasRequired) throw new Error('missing required workspace files')
+  return hasRequired
+}
+
+const createTmp = async () => {
+  console.log("Creating tmp directory...")
+  const dir = await tmp('plasmo-safari')
+  console.log("Created tmp directory at: ", dir)
+  return dir
 }
 
 // https://docs.fastlane.tools/advanced/#appfile
@@ -62,23 +86,25 @@ const generateAppfile = async (filePath, options: AppfileOptions) => {
     return acc
   }, []).join("\n")
   await fs.writeFile(filePath, content)
+  console.log("Appfile generated at: ", filePath)
   return filePath
 }
 
-const generateWorkspace = async (zipPath: string) => {
-  const dir = await createTmp('plasmo-safari')
-  console.log("Created tmp directory at: ", dir)
-  const extension = `${dir}/extension/`
+const extractExtension = async (workspacePath: string, zipPath: string) => {
+  const extension = `${workspacePath}/extension/`
   console.log("Extracting extension...")
   await extractZip(zipPath, extension)
   console.log("Extension extracted to: ", extension)
-  await fs.copySync('./template/', dir) // copy Fastlane template
-  await installDependencies(dir)
-  await generateXcodeProject(extension, dir)
+  return extension
+}
+
+const generateWorkspace = async (workspacePath: string, zipPath: string) => {
+  const extension = await extractExtension(workspacePath, zipPath)
+  await fs.copySync('./template/', workspacePath) // copy Fastlane template
+  await installDependencies(workspacePath)
+  await generateXcodeProject(extension, workspacePath)
   const appfile: AppfileOptions = { app_identifier: "" }
-  const appfilePath = await generateAppfile(`${dir}/fastlane/Appfile`, appfile)
-  console.log("Appfile generated at: ", appfilePath)
-  return dir
+  await generateAppfile(`${workspacePath}/fastlane/Appfile`, appfile)
 }
 
 type ConvertWebExtensionParams = {
