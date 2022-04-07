@@ -1,5 +1,5 @@
 
-import { Action, ActionOptions } from "~fastlane/actions/"
+import { Action, ActionOptions } from "~fastlane/common/action"
 
 export type ConvertWebExtensionOptions = {
   project_location?: string

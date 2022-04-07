@@ -4,16 +4,24 @@ import { getVerboseLogger } from "~util/logging"
 
 const vLog = getVerboseLogger()
 
+export type DeveloperPortal = {
+  apple_id?: string
+  apple_dev_portal_id?: string
+  team_name?: string
+  team_id?: string
+}
+
+export type AppStoreConnect = {
+  itunes_connect_id?: string
+  itc_team_name?: string
+  itc_team_id?: string
+}
+
+export type AppleDeveloper = DeveloperPortal & AppStoreConnect
+
 // https://docs.fastlane.tools/advanced/#appfile
-export type Appfile = {
-  app_identifier: string // bundle identifier of extension
-  apple_id?: string // use below ids if different between Portal/Connect 
-  apple_dev_portal_id?: string // if different creds between Portal/Connect
-  itunes_connect_id?: string // if different creds between Portal/Connect
-  team_name?: string // developer portal team
-  team_id?: string // developer portal team
-  itc_team_name?: string // App Store Connect team
-  itc_team_id?: string // App Store Connect team
+export type Appfile = AppleDeveloper & {
+  app_identifier: string // bundle identifier of extension app
 }
 
 export class FastlaneAppfile {
@@ -23,8 +31,9 @@ export class FastlaneAppfile {
     this.options = options
   }
   
-  async generate(filePath: string) {
+  async generate(path: string) {
     vLog("Generating Appfile...")
+    const filePath = `${path}/fastlane/Appfile`
     const content = Object.entries(this.options).reduce((acc, entry) => {
       const [key, value] = entry
       acc.push(`${key} "${value}"`)

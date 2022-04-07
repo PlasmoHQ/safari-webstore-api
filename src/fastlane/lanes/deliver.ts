@@ -1,5 +1,5 @@
 
-import { Lane, LaneOptions } from '~fastlane/lanes/'
+import { Lane, LaneOptions } from '~fastlane/common/lane'
 
 export type DeliverOptions = LaneOptions & {
   

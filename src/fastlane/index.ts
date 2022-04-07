@@ -5,16 +5,20 @@ import { BuildLane, BuildOptions } from "./lanes/build"
 import { PilotLane, PilotOptions } from "./lanes/pilot"
 import { DeliverLane, DeliverOptions } from "./lanes/deliver"
 import { getVerboseLogger } from "~util/logging"
-import { FastlaneAPIKey, APIKey } from "~/fastlane/config/auth"
+import { FastlaneAPIKey, APIKey } from "~fastlane/config/auth"
+import { FastlaneAppfile, Appfile, AppleDeveloper } from "~fastlane/config/appfile"
 
 const vLog = getVerboseLogger()
 
 export type FastlaneOptions = {
   workspace: string
+  key: APIKey
+  appfile: Appfile
 }
 
 export class FastlaneClient {
   options: FastlaneOptions
+  apiKeyPath: string
 
   constructor(options: FastlaneOptions) {
     this.options = options
@@ -28,15 +32,18 @@ export class FastlaneClient {
     vLog("Xcode project successfully generated")
   }
 
+  // generate hardcoded Appfile
   // auth with developer portal and itunes connect
-  async auth(key: APIKeyOptions) {
-    const fastlaneKey = new FastlaneAPIKey(key)
-    const apiKeyPath = await fastlaneKey.writeJSON(this.options.workspace)
-    return apiKeyPath
+  async configure() {
+    vLog("Configuring Fastlane...")
+    const appfile = new FastlaneAppfile(this.options.appfile)
+    await appfile.generate(this.options.workspace)
+    const key = new FastlaneAPIKey(this.options.key)
+    this.apiKeyPath = await key.writeJSON(this.options.workspace)
   }
 
   // create app in developer portal and app store connect
-  async produce(options?: ProduceOptions) {
+  private async produce(options?: ProduceOptions) {
     const lane = new ProduceLane(options)
   }
 
@@ -46,7 +53,7 @@ export class FastlaneClient {
   }
 
   // upload and deploy to testflight
-  async pilot(options?: PilotOptions) {
+  private async pilot(options?: PilotOptions) {
     const lane = new PilotLane(options)
   }
 

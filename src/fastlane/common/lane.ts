@@ -1,5 +1,5 @@
 
-import { FastlaneExec, ExecOptions } from "~fastlane/exec"
+import { FastlaneExec, ExecOptions } from "~fastlane/common/exec"
 
 export type LaneOptions = ExecOptions & {
   
