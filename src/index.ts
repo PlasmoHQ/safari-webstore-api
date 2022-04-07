@@ -1,31 +1,12 @@
 
 import { enableVerboseLogging } from "~util/logging"
-import { ConvertLane } from "~lanes/convert"
+import { FastlaneClient, FastlaneOptions } from "~fastlane/"
+import { Workspace } from "~workspace/"
 
 export type Options = {
   bundleId?: string
   verbose?: boolean
   workspace?: string
-}
-
-export type ConvertOptions = {
-  filePath: string
-}
-
-export type ProduceOptions = {
-  
-}
-
-export type BuildOptions = {
-
-}
-
-export type PilotOptions = {
-  
-}
-
-export type SubmitOptions = {
-  
 }
 
 export const errorMap = {
@@ -35,9 +16,12 @@ export const requiredFields = Object.keys(errorMap) as Array<
   keyof typeof errorMap
 >
 
+type SubmitOptions = {
+  filePath: string
+}
+
 export class SafariAppStoreClient {
   options = {} as Options
-  workspace: string
 
   constructor(options: Options) {
     for (const field of requiredFields) {
@@ -49,30 +33,16 @@ export class SafariAppStoreClient {
     this.options = options
   }
 
-  // generate Xcode project
-  async convert(options: ConvertOptions) {
-    const lane = new ConvertLane(options)
-    const staticDir = this.options.workspace
-    const { workspace, extension } = await lane.run(staticDir)
-  }
-
-  // create app in developer portal and app store connect
-  async produce(options: ProduceOptions = {}) {
-
-  }
-
-  // build and sign app
-  async build(options: BuildOptions = {}) {
-   
-  }
-
-  // upload and deploy to testflight
-  async pilot(options: PilotOptions = {}) {
-
-  }
-
-  // upload and submit to the app store
-  async submit(options: SubmitOptions = {}) {
-
+  async submit(options: SubmitOptions) {
+    const workspace = new Workspace(this.options.workspace)
+    await workspace.prepare()
+    const extension = await workspace.extractExtension(options.filePath)
+    const fastlane = new FastlaneClient({} as FastlaneOptions)
+    await fastlane.convert(extension, workspace.path)
+    //await fastlane.auth()
+    //await fastlane.produce()
+    //await fastlane.build()
+    //await fastlane.pilot()
+    //await fastlane.deliver()
   }
 }

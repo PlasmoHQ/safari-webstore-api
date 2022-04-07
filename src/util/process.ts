@@ -3,6 +3,9 @@ import {
   spawn as spawnStream, 
   SpawnOptionsWithoutStdio
 } from "child_process"
+import { getVerboseLogger } from "~/util/logging"
+
+const vLog = getVerboseLogger()
 
 declare class Error {
   public message: string
@@ -23,7 +26,16 @@ export class ProcessError extends Error {
   }
 }
 
-export const spawn = (command: string, args: Array<string>, options: SpawnOptionsWithoutStdio) => {
+export const spawn = async (command: string, args: Array<string>, options: SpawnOptionsWithoutStdio) => {
+  try {
+    return await _spawn(command, args, options)
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
+const _spawn = (command, args, options) => {
   return new Promise((resolve, reject) => {
     let [stdout, stderr] = ["", ""]
     const process = spawnStream(command, args, options)
@@ -35,3 +47,4 @@ export const spawn = (command: string, args: Array<string>, options: SpawnOption
     })
   })
 }
+
