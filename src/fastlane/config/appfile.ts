@@ -5,7 +5,7 @@ import { getVerboseLogger } from "~util/logging"
 const vLog = getVerboseLogger()
 
 // https://docs.fastlane.tools/advanced/#appfile
-export type AppfileOptions = {
+export type Appfile = {
   app_identifier: string // bundle identifier of extension
   apple_id?: string // use below ids if different between Portal/Connect 
   apple_dev_portal_id?: string // if different creds between Portal/Connect
@@ -16,10 +16,10 @@ export type AppfileOptions = {
   itc_team_id?: string // App Store Connect team
 }
 
-export class Appfile {
-  options: AppfileOptions
+export class FastlaneAppfile {
+  options: Appfile
 
-  constructor(options: AppfileOptions) {
+  constructor(options: Appfile) {
     this.options = options
   }
   

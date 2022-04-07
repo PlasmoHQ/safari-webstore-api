@@ -2,13 +2,15 @@
 import { enableVerboseLogging, getVerboseLogger } from "~util/logging"
 import { FastlaneClient, FastlaneOptions } from "~fastlane/"
 import { Workspace } from "~workspace/"
+import type { APIKey } from "~fastlane/config/auth"
 
 const vLog = getVerboseLogger()
 
 export type Options = {
-  bundleId?: string
-  verbose?: boolean
+  bundleId: string
+  key: APIKey
   workspace?: string
+  verbose?: boolean
 }
 
 export const errorMap = {
@@ -41,10 +43,8 @@ export class SafariAppStoreClient {
     const fastlane = new FastlaneClient({} as FastlaneOptions)
     if (workspace.hasXcodeProject) vLog("Skipping conversion because Xcode project already exists")
     else await fastlane.convert(extension, workspace.path)
-    //await fastlane.auth()
-    //await fastlane.produce()
+    const apiKeyPath = await fastlane.auth(this.options.key)
     //await fastlane.build()
-    //await fastlane.pilot()
     //await fastlane.deliver()
   }
 }

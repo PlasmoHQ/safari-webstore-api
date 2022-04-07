@@ -1,16 +1,16 @@
 
 import { ConvertWebExtensionAction, ConvertWebExtensionOptions } from "./actions/convert"
-import { AuthLane, AuthOptions } from "./lanes/auth"
 import { ProduceLane, ProduceOptions } from "./lanes/produce"
 import { BuildLane, BuildOptions } from "./lanes/build"
 import { PilotLane, PilotOptions } from "./lanes/pilot"
 import { DeliverLane, DeliverOptions } from "./lanes/deliver"
 import { getVerboseLogger } from "~util/logging"
+import { FastlaneAPIKey, APIKey } from "~/fastlane/config/auth"
 
 const vLog = getVerboseLogger()
 
 export type FastlaneOptions = {
-  workspace: String
+  workspace: string
 }
 
 export class FastlaneClient {
@@ -29,8 +29,10 @@ export class FastlaneClient {
   }
 
   // auth with developer portal and itunes connect
-  async auth(options?: AuthOptions) {
-    const lane = new AuthLane(options)
+  async auth(key: APIKeyOptions) {
+    const fastlaneKey = new FastlaneAPIKey(key)
+    const apiKeyPath = await fastlaneKey.writeJSON(this.options.workspace)
+    return apiKeyPath
   }
 
   // create app in developer portal and app store connect
