@@ -29,12 +29,26 @@ export type AppOptions = {
   bundleId: string
 }
 
-export type Options = AppOptions & DevOptions & KeyOptions & {
+export type CodeSigningOptions = {
+  match: boolean
+  cert: boolean
+  sigh: boolean
+}
+
+export type ClientOptions = {
   workspace?: string
   verbose?: boolean
 }
 
+export type Options = 
+            AppOptions & 
+            DevOptions & 
+            KeyOptions & 
+            CodeSigningOptions &
+            ClientOptions
+
 export const errorMap = {
+
 }
 
 export const requiredFields = Object.keys(errorMap) as Array<
@@ -67,10 +81,10 @@ export class SafariAppStoreClient {
       key: keyMap(this.options)
     })
     if (workspace.hasXcodeProject) vLog("Skipping conversion because Xcode project already exists")
-    else await fastlane.convert(extension, workspace.path)
-    await fastlane.configure()
+    else await fastlane.convert(extension)
+    await fastlane.configure(this.options)
     await fastlane.build()
-    //await fastlane.deliver()
+    await fastlane.deliver()
   }
 }
 

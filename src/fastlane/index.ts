@@ -1,12 +1,15 @@
 
 import { ConvertWebExtensionAction, ConvertWebExtensionOptions } from "./actions/convert"
-import { ProduceLane, ProduceOptions } from "./lanes/produce"
+import { MatchAction, MatchOptions } from "./actions/match"
 import { BuildLane, BuildOptions } from "./lanes/build"
 import { PilotLane, PilotOptions } from "./lanes/pilot"
 import { DeliverLane, DeliverOptions } from "./lanes/deliver"
 import { getVerboseLogger } from "~util/logging"
 import { FastlaneAPIKey, APIKey } from "~fastlane/config/auth"
-import { FastlaneAppfile, Appfile, AppleDeveloper } from "~fastlane/config/appfile"
+import { FastlaneAppfile, Appfile } from "~fastlane/config/appfile"
+import type { CodeSigningOptions } from "~/"
+import { CertAction, CertOptions } from "./actions/cert"
+import { SighAction, SighOptions } from "./actions/sigh"
 
 const vLog = getVerboseLogger()
 
@@ -25,7 +28,8 @@ export class FastlaneClient {
   }
 
   // generate Xcode project with extension folder
-  async convert(extension: string, cwd: string, options?: ConvertWebExtensionOptions) {
+  async convert(extension: string, options?: ConvertWebExtensionOptions) {
+    const cwd = this.options.workspace
     vLog("Converting extension...")
     const action = new ConvertWebExtensionAction(options, { cwd })
     await action.convert(extension)
@@ -34,17 +38,36 @@ export class FastlaneClient {
 
   // generate hardcoded Appfile
   // auth with developer portal and itunes connect
-  async configure() {
+  async configure(options?: CodeSigningOptions) {
     vLog("Configuring Fastlane...")
     const appfile = new FastlaneAppfile(this.options.appfile)
     await appfile.generate(this.options.workspace)
     const key = new FastlaneAPIKey(this.options.key)
     this.apiKeyPath = await key.writeJSON(this.options.workspace)
+    await this.codeSigningSetup(options)
+    vLog("Fastlane successfully configured")
   }
 
-  // create app in developer portal and app store connect
-  private async produce(options?: ProduceOptions) {
-    const lane = new ProduceLane(options)
+  private async codeSigningSetup(options?: CodeSigningOptions) {
+    vLog("Gathering codesigning materials...")
+    const actionOptions = { cwd: this.options.workspace }
+    const types = ["development", "appstore"]
+    for (const type of types) {
+      vLog(`Gathering codesigning materials for ${type}...`)
+      if (options.match) {
+        const matchOptions = { api_key_path: this.apiKeyPath, type } as MatchOptions
+        const match = new MatchAction(matchOptions, actionOptions)
+        await match.syncCodeSigning()
+      } else {
+        const certOptions = { api_key_path: this.apiKeyPath, type } as CertOptions
+        const cert = new CertAction(certOptions, actionOptions)
+        await cert.getCertificates()
+        const development = (type === "development")
+        const sighOptions = { api_key_path: this.apiKeyPath, development } as SighOptions
+        const sigh = new SighAction(sighOptions, actionOptions)
+        await sigh.getProvisioningProfile()
+      }
+    }
   }
 
   // build and sign app

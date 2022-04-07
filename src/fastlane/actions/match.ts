@@ -1,12 +1,15 @@
 
 import { Action, ActionOptions } from "~fastlane/common/action"
+import { getVerboseLogger } from "~util/logging"
+
+const vLog = getVerboseLogger()
 
 export type MatchOptions = {
   type: string,
   readonly: true,
-  platform: string[],
+  platform?: string,
   api_key_path: string,
-  verbose: boolean
+  verbose?: boolean
 }
 
 // sync code signing
@@ -15,13 +18,14 @@ export type MatchOptions = {
 export class MatchAction extends Action {
   options?: MatchOptions
 
-  constructor(options?: MatchOptions, actionOptions?: ActionOptions) {
+  constructor(options: MatchOptions, actionOptions?: ActionOptions) {
     super("match", actionOptions)
     this.options = options
   }
   
-  async match() {
+  async syncCodeSigning() {
+    vLog("Syncing with match...")
     const { type } = this.options
-    await super.run([ type ], this.options)
+    return await super.run([ type ], this.options)
   }
 }
