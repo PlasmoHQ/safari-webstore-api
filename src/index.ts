@@ -1,7 +1,9 @@
 
-import { enableVerboseLogging } from "~util/logging"
+import { enableVerboseLogging, getVerboseLogger } from "~util/logging"
 import { FastlaneClient, FastlaneOptions } from "~fastlane/"
 import { Workspace } from "~workspace/"
+
+const vLog = getVerboseLogger()
 
 export type Options = {
   bundleId?: string
@@ -35,10 +37,10 @@ export class SafariAppStoreClient {
 
   async submit(options: SubmitOptions) {
     const workspace = new Workspace(this.options.workspace)
-    await workspace.prepare()
-    const extension = await workspace.extractExtension(options.filePath)
+    const extension = await workspace.assemble(options.filePath)
     const fastlane = new FastlaneClient({} as FastlaneOptions)
-    await fastlane.convert(extension, workspace.path)
+    if (workspace.hasXcodeProject) vLog("Skipping conversion because Xcode project already exists")
+    else await fastlane.convert(extension, workspace.path)
     //await fastlane.auth()
     //await fastlane.produce()
     //await fastlane.build()

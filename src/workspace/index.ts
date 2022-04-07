@@ -8,22 +8,28 @@ const vLog = getVerboseLogger()
 
 export class Workspace {
   path: string
+  hasXcodeProject: boolean
 
   constructor(path?: string) {
     this.path = path
   }
-
-  async prepare() {
+  
+  async assemble(zipPath: string): Promise<string> {
     if (this.path) await this.validate()
     else this.path = await this.create()
-    await installDependencies(this.path)
+    await this.installDependencies()
+    const extension = await this.extractExtension(zipPath)
+    return extension
   }
 
   // user provided workspace (bring your own ruby and fastfile)
   private async validate(): Promise<string> {
     await fs.ensureDir(this.path)
     const [ruby, fastlane, xcode] = await checkWorkspace(this.path)
-    if (xcode) throw new Error("Static workspace cannot have Xcode project")
+    if (xcode) {
+      vLog("Found Xcode project in static workspace...")
+      this.hasXcodeProject = true
+    }
     if (!ruby) await generateRuby(this.path)
     if (!fastlane) await generateFastlane(this.path)
     return this.path
@@ -38,8 +44,14 @@ export class Workspace {
     vLog("Workspace generated at: ", dir)
     return dir
   }
+
+  private async installDependencies() {
+    vLog("Installing Ruby dependencies...")
+    const cwd = this.path
+    return await spawn('bundle', ['install'], { cwd })
+  }
   
-  async extractExtension(zipPath: string): Promise<string> {
+  private async extractExtension(zipPath: string): Promise<string> {
     const extension = `${this.path}/extension/`
     vLog("Extracting extension...")
     await extractZip(zipPath, extension)
@@ -93,9 +105,4 @@ const generateFastlane = async (dir: string): Promise<void> => {
 
 const validRuby = async (files: string[]) => {
   return hasRequired(['Gemfile'], files)
-}
-
-const installDependencies = async (cwd: string) => {
-  vLog("Installing Ruby dependencies...")
-  return await spawn('bundle', ['install'], { cwd })
 }
