@@ -15,8 +15,8 @@ export class Action extends FastlaneExec {
     this.name = name
   }
 
-  async run(params?: {}) {
-    this.exec(['run', this.name], params)
+  async run(args?: string[], params?: {}) {
+    return await this.exec(['run', this.name].concat(args), params)
   }
 }
 

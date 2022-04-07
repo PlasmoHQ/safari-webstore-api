@@ -74,10 +74,6 @@ export class SafariAppStoreClient {
   }
 }
 
-const fastlaneOptions = () => {
-  
-}
-
 const appfileMap = (ops: Options): Appfile => {
   return {
     app_identifier: ops.bundleId,

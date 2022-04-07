@@ -27,8 +27,8 @@ export class FastlaneClient {
   // generate Xcode project with extension folder
   async convert(extension: string, cwd: string, options?: ConvertWebExtensionOptions) {
     vLog("Converting extension...")
-    const lane = new ConvertWebExtensionAction(options, { cwd })
-    await lane.run(extension)
+    const action = new ConvertWebExtensionAction(options, { cwd })
+    await action.convert(extension)
     vLog("Xcode project successfully generated")
   }
 

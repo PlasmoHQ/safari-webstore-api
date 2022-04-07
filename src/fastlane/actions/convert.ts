@@ -23,8 +23,8 @@ export class ConvertWebExtensionAction extends Action {
   }
   
   // needs absolute path
-  async run(extension: string) {
-    await super.run({
+  async convert(extension: string) {
+    await super.run([], {
       extension,
       ...this.options
     })

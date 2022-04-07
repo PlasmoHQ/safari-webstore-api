@@ -14,6 +14,6 @@ export class Lane extends FastlaneExec {
   }
 
   async run(params?: {}) {
-    this.exec([this.name], params)
+    return await this.exec([this.name], params)
   }
 }
