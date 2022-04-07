@@ -7,8 +7,7 @@ import type { Appfile } from "~fastlane/config/appfile"
 
 const vLog = getVerboseLogger()
 
-export type Options = {
-  bundleId: string,
+export type DevOptions = {
   devAppleId?: string,
   devPortalId?: string,
   devTeamName?: string,
@@ -16,11 +15,21 @@ export type Options = {
   devItunesConnectId?: string,
   devItcTeamName?: string,
   devItcTeamId?: string,
+}
+
+export type KeyOptions = {
   keyId: string,
   keyIssuerId: string,
   key: string,
   keyDuration?: number,
   keyInHouse?: boolean,
+}
+
+export type AppOptions = {
+  bundleId: string
+}
+
+export type Options = AppOptions & DevOptions & KeyOptions & {
   workspace?: string
   verbose?: boolean
 }
@@ -54,31 +63,35 @@ export class SafariAppStoreClient {
     const extension = await workspace.assemble(options.filePath)
     const fastlane = new FastlaneClient({
       workspace: workspace.path,
-      appfile: appfile(this.options),
-      key: key(this.options)
+      appfile: appfileMap(this.options),
+      key: keyMap(this.options)
     })
     if (workspace.hasXcodeProject) vLog("Skipping conversion because Xcode project already exists")
     else await fastlane.convert(extension, workspace.path)
     await fastlane.configure()
-    //await fastlane.build()
+    await fastlane.build()
     //await fastlane.deliver()
   }
 }
 
-const appfile = (options: Options): Appfile => {
+const fastlaneOptions = () => {
+  
+}
+
+const appfileMap = (ops: Options): Appfile => {
   return {
-    app_identifier: options.bundleId,
-    apple_id: options.devAppleId,
-    apple_dev_portal_id: options.devPortalId,
-    team_name: options.devTeamName,
-    team_id: options.devTeamId,
-    itunes_connect_id: options.devItunesConnectId,
-    itc_team_id: options.devItcTeamId,
-    itc_team_name: options.devItcTeamName
+    app_identifier: ops.bundleId,
+    apple_id: ops.devAppleId,
+    apple_dev_portal_id: ops.devPortalId,
+    team_name: ops.devTeamName,
+    team_id: ops.devTeamId,
+    itunes_connect_id: ops.devItunesConnectId,
+    itc_team_id: ops.devItcTeamId,
+    itc_team_name: ops.devItcTeamName
   }
 }
 
-const key = (options: Options): APIKey => {
+const keyMap = (options: KeyOptions): APIKey => {
   return {
     key_id: options.keyId,
     issuer_id: options.keyIssuerId,
