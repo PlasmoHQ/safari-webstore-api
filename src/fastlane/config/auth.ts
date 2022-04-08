@@ -9,7 +9,7 @@ export type APIKey = {
   issuer_id: string
   key: string
   duration?: number
-  in_house?: boolean
+  in_house: boolean
 }
 
 export class FastlaneAPIKey {

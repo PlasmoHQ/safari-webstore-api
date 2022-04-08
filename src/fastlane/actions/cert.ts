@@ -5,7 +5,7 @@ import { getVerboseLogger } from "~util/logging"
 const vLog = getVerboseLogger()
 
 export type CertOptions = {
-  type: string,
+  development?: boolean,
   platform?: string,
   api_key_path: string
 }

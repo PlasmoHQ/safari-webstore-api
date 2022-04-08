@@ -38,6 +38,7 @@ export const spawn = async (command: string, args: Array<string>, options: Spawn
 const _spawn = (command, args, options) => {
   return new Promise((resolve, reject) => {
     let [stdout, stderr] = ["", ""]
+    vLog(`Spawning child_process ${command} ${args.join(" ")}`)
     const process = spawnStream(command, args, options)
     process.stdout.on('data', (data) => { stdout += data.toString() })
     process.stderr.on('data', (data) => { stderr += data.toString() })

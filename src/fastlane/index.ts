@@ -59,10 +59,10 @@ export class FastlaneClient {
         const match = new MatchAction(matchOptions, actionOptions)
         await match.syncCodeSigning()
       } else {
-        const certOptions = { api_key_path: this.apiKeyPath, type } as CertOptions
+        const development = (type === "development")
+        const certOptions = { api_key_path: this.apiKeyPath, development } as CertOptions
         const cert = new CertAction(certOptions, actionOptions)
         await cert.getCertificates()
-        const development = (type === "development")
         const sighOptions = { api_key_path: this.apiKeyPath, development } as SighOptions
         const sigh = new SighAction(sighOptions, actionOptions)
         await sigh.getProvisioningProfile()

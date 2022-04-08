@@ -21,8 +21,7 @@ export type KeyOptions = {
   keyId: string,
   issuerId: string,
   key: string,
-  duration?: number,
-  inHouse?: boolean,
+  duration?: number
 }
 
 export type AppOptions = {
@@ -106,7 +105,7 @@ const keyMap = (options: KeyOptions): APIKey => {
     key_id: options.keyId,
     issuer_id: options.issuerId,
     key: options.key,
-    duration: options.duration,
-    in_house: options.inHouse,
+    in_house: false, // enterprise not yet supported
+    duration: options.duration
   }
 }
