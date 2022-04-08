@@ -7,7 +7,8 @@ const vLog = getVerboseLogger()
 export type CertOptions = {
   development?: boolean,
   platform?: string,
-  api_key_path: string
+  type?: string,
+  api_key_path: string,
 }
 
 export class CertAction extends Action {

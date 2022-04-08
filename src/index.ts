@@ -29,9 +29,7 @@ export type AppOptions = {
 }
 
 export type CodeSigningOptions = {
-  match: boolean
-  cert: boolean
-  sigh: boolean
+  
 }
 
 export type ClientOptions = {

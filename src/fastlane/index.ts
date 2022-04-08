@@ -8,8 +8,6 @@ import { getVerboseLogger } from "~util/logging"
 import { FastlaneAPIKey, APIKey } from "~fastlane/config/auth"
 import { FastlaneAppfile, Appfile } from "~fastlane/config/appfile"
 import type { CodeSigningOptions } from "~/"
-import { CertAction, CertOptions } from "./actions/cert"
-import { SighAction, SighOptions } from "./actions/sigh"
 
 const vLog = getVerboseLogger()
 
@@ -49,24 +47,12 @@ export class FastlaneClient {
   }
 
   private async codeSigningSetup(options?: CodeSigningOptions) {
-    vLog("Gathering codesigning materials...")
     const actionOptions = { cwd: this.options.workspace }
-    const types = ["development", "appstore"]
-    for (const type of types) {
+    for (const type of ["development", "appstore"]) {
       vLog(`Gathering codesigning materials for ${type}...`)
-      if (options.match) {
-        const matchOptions = { api_key_path: this.apiKeyPath, type } as MatchOptions
-        const match = new MatchAction(matchOptions, actionOptions)
-        await match.syncCodeSigning()
-      } else {
-        const development = (type === "development")
-        const certOptions = { api_key_path: this.apiKeyPath, development } as CertOptions
-        const cert = new CertAction(certOptions, actionOptions)
-        await cert.getCertificates()
-        const sighOptions = { api_key_path: this.apiKeyPath, development } as SighOptions
-        const sigh = new SighAction(sighOptions, actionOptions)
-        await sigh.getProvisioningProfile()
-      }
+      const matchOptions = { api_key_path: this.apiKeyPath, type } as MatchOptions
+      const match = new MatchAction(matchOptions, actionOptions)
+      await match.syncCodeSigning()
     }
   }
 
