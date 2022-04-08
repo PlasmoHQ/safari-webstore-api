@@ -36,7 +36,7 @@ export class FastlaneAppfile {
     const filePath = `${path}/fastlane/Appfile`
     const content = Object.entries(this.options).reduce((acc, entry) => {
       const [key, value] = entry
-      acc.push(`${key} "${value}"`)
+      if (value) acc.push(`${key} "${value}"`)
       return acc
     }, []).join("\n")
     await fs.writeFile(filePath, content)
