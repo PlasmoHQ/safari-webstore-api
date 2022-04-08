@@ -7,22 +7,22 @@ import type { Appfile } from "~fastlane/config/appfile"
 
 const vLog = getVerboseLogger()
 
-export type DevOptions = {
-  devAppleId?: string,
-  devPortalId?: string,
-  devTeamName?: string,
-  devTeamId?: string,
-  devItunesConnectId?: string,
-  devItcTeamName?: string,
-  devItcTeamId?: string,
+export type IdentityOptions = {
+  appleId?: string,
+  appleDevPortalId?: string,
+  teamName?: string,
+  teamId?: string,
+  itunesConnectId?: string,
+  itcTeamName?: string,
+  itcTeamId?: string,
 }
 
 export type KeyOptions = {
   keyId: string,
-  keyIssuerId: string,
+  issuerId: string,
   key: string,
-  keyDuration?: number,
-  keyInHouse?: boolean,
+  duration?: number,
+  inHouse?: boolean,
 }
 
 export type AppOptions = {
@@ -42,7 +42,7 @@ export type ClientOptions = {
 
 export type Options = 
             AppOptions & 
-            DevOptions & 
+            IdentityOptions & 
             KeyOptions & 
             CodeSigningOptions &
             ClientOptions
@@ -91,22 +91,22 @@ export class SafariAppStoreClient {
 const appfileMap = (ops: Options): Appfile => {
   return {
     app_identifier: ops.bundleId,
-    apple_id: ops.devAppleId,
-    apple_dev_portal_id: ops.devPortalId,
-    team_name: ops.devTeamName,
-    team_id: ops.devTeamId,
-    itunes_connect_id: ops.devItunesConnectId,
-    itc_team_id: ops.devItcTeamId,
-    itc_team_name: ops.devItcTeamName
+    apple_id: ops.appleId,
+    apple_dev_portal_id: ops.appleDevPortalId,
+    team_name: ops.teamName,
+    team_id: ops.teamId,
+    itunes_connect_id: ops.itunesConnectId,
+    itc_team_id: ops.itcTeamId,
+    itc_team_name: ops.itcTeamName
   }
 }
 
 const keyMap = (options: KeyOptions): APIKey => {
   return {
     key_id: options.keyId,
-    issuer_id: options.keyIssuerId,
+    issuer_id: options.issuerId,
     key: options.key,
-    duration: options.keyDuration,
-    in_house: options.keyInHouse,
+    duration: options.duration,
+    in_house: options.inHouse,
   }
 }
