@@ -42,3 +42,7 @@ export const emptyDir = async (dir: string): Promise<boolean> => {
   const length = await fs.readdir(dir).length 
   return (length === 0)
 }
+
+export const writeKeyFile = async () => {
+
+}

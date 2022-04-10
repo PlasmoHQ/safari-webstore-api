@@ -38,10 +38,11 @@ export class FastlaneClient {
   // auth with developer portal and itunes connect
   async configure(options?: CodeSigningOptions) {
     vLog("Configuring Fastlane...")
+    const { workspace } = this.options
     const appfile = new FastlaneAppfile(this.options.appfile)
-    await appfile.generate(this.options.workspace)
+    await appfile.persist(workspace)
     const key = new FastlaneAPIKey(this.options.key)
-    this.apiKeyPath = await key.writeJSON(this.options.workspace)
+    this.apiKeyPath = await key.persist(workspace)
     await this.codeSigningSetup(options)
     vLog("Fastlane successfully configured")
   }

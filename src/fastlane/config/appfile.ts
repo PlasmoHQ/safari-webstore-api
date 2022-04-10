@@ -1,8 +1,5 @@
 
-import fs from "fs-extra"
-import { getVerboseLogger } from "~util/logging"
-
-const vLog = getVerboseLogger()
+import { ConfigFile } from "~fastlane/common/config"
 
 export type DeveloperPortal = {
   apple_id?: string
@@ -24,23 +21,14 @@ export type Appfile = AppleDeveloper & {
   app_identifier: string // bundle identifier of extension app
 }
 
-export class FastlaneAppfile {
-  options: Appfile
+export class FastlaneAppfile extends ConfigFile {
+  appfile: Appfile
 
-  constructor(options: Appfile) {
-    this.options = options
+  constructor(appfile: Appfile) {
+    super({ name: 'Appfile' })
+    this.appfile = appfile
   }
-  
-  async generate(path: string) {
-    vLog("Generating Appfile...")
-    const filePath = `${path}/fastlane/Appfile`
-    const content = Object.entries(this.options).reduce((acc, entry) => {
-      const [key, value] = entry
-      if (value) acc.push(`${key} "${value}"`)
-      return acc
-    }, []).join("\n")
-    await fs.writeFile(filePath, content)
-    vLog("Appfile generated at: ", filePath)
-    return filePath
+  async persist(path: string): Promise<string> {
+    return await super.writeRuby(this.appfile, `${path}/fastlane`)
   }
 }

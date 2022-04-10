@@ -1,8 +1,5 @@
 
-import fs from "fs-extra"
-import { getVerboseLogger } from "~util/logging"
-
-const vLog = getVerboseLogger()
+import { ConfigFile } from "~fastlane/common/config"
 
 export type APIKey = {
   key_id: string
@@ -12,20 +9,15 @@ export type APIKey = {
   in_house: boolean
 }
 
-export class FastlaneAPIKey {
+export class FastlaneAPIKey extends ConfigFile {
   key: APIKey
 
   constructor(key: APIKey) {
+    super({ name: `${key.key_id}.json`})
     this.key = key
   }
 
-  async writeJSON(path: string): Promise<string> {
-    vLog("Writing API key to JSON file...")
-    const { key_id } = this.key
-    const filePath = `${path}/fastlane/${key_id}.json`
-    const content = JSON.stringify(this.key)
-    await fs.writeFile(filePath, content)
-    vLog(`API key written to: ${filePath}`)
-    return filePath
+  async persist(path: string): Promise<string> {
+    return await this.writeJSON(this.key, path)
   }
 }
