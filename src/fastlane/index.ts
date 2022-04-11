@@ -1,9 +1,9 @@
 
 import { ConvertWebExtensionAction, ConvertWebExtensionOptions } from "./actions/convert"
 import { MatchAction, MatchOptions } from "./actions/match"
-import { BuildLane, BuildOptions } from "./lanes/build"
-import { PilotLane, PilotOptions } from "./lanes/pilot"
-import { DeliverLane, DeliverOptions } from "./lanes/deliver"
+import { GymAction, GymOptions } from "./actions/gym"
+import { PilotAction, PilotOptions } from "./actions/pilot"
+import { DeliverAction, DeliverOptions } from "./actions/deliver"
 import { getVerboseLogger } from "~util/logging"
 import { FastlaneAPIKey, APIKey } from "~fastlane/config/auth"
 import { FastlaneAppfile, Appfile } from "~fastlane/config/appfile"
@@ -72,17 +72,17 @@ export class FastlaneClient {
   }
 
   // build and sign app
-  async build(options?: BuildOptions) {
-    const lane = new BuildLane(options)
+  async gym(options?: GymOptions) {
+    const lane = new GymAction(options)
   }
 
   // upload and deploy to testflight
   private async pilot(options?: PilotOptions) {
-    const lane = new PilotLane(options)
+    const lane = new PilotAction(options)
   }
 
   // upload and submit to the app store
   async deliver(options?: DeliverOptions) {
-    const lane = new DeliverLane(options)
+    const lane = new DeliverAction(options)
   }
 }
