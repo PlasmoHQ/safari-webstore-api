@@ -88,7 +88,7 @@ export class SafariAppStoreClient {
     if (workspace.hasXcodeProject) vLog("Skipping conversion because Xcode project already exists")
     else await fastlane.convert(extension)
     await fastlane.configure(this.options)
-    await fastlane.build()
+    await fastlane.gym()
     await fastlane.deliver()
   }
 }
