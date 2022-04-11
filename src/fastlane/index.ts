@@ -7,14 +7,19 @@ import { DeliverLane, DeliverOptions } from "./lanes/deliver"
 import { getVerboseLogger } from "~util/logging"
 import { FastlaneAPIKey, APIKey } from "~fastlane/config/auth"
 import { FastlaneAppfile, Appfile } from "~fastlane/config/appfile"
+import { FastlaneMatchfile, Matchfile } from "~fastlane/config/matchfile"
+import { FastlaneGymfile, Gymfile } from "~fastlane/config/gymfile"
 import type { CodeSigningOptions } from "~/"
 
 const vLog = getVerboseLogger()
 
 export type FastlaneOptions = {
-  workspace: string
-  key: APIKey
-  appfile: Appfile
+  workspace: string,
+  key: APIKey,
+  appfile: Appfile,
+  matchfile: Matchfile,
+  gymfile: Gymfile,
+  platforms: string[]
 }
 
 export class FastlaneClient {
@@ -43,17 +48,26 @@ export class FastlaneClient {
     await appfile.persist(workspace)
     const key = new FastlaneAPIKey(this.options.key)
     this.apiKeyPath = await key.persist(workspace)
-    await this.codeSigningSetup(options)
+    const matchfile = new FastlaneMatchfile({
+      api_key_path: this.apiKeyPath,
+      ...this.options.matchfile
+    })
+    await matchfile.persist(workspace)
+    const gymfile = new FastlaneGymfile(this.options.gymfile)
+    await gymfile.persist(workspace)
+    await this.codeSigningSetup()
     vLog("Fastlane successfully configured")
   }
 
-  private async codeSigningSetup(options?: CodeSigningOptions) {
+  private async codeSigningSetup() {
     const actionOptions = { cwd: this.options.workspace }
-    for (const type of ["development", "appstore"]) {
-      vLog(`Gathering codesigning materials for ${type}...`)
-      const matchOptions = { api_key_path: this.apiKeyPath, type } as MatchOptions
-      const match = new MatchAction(matchOptions, actionOptions)
-      await match.syncCodeSigning()
+    for (const platform of this.options.platforms) {
+      for (const type of ["development", "appstore"]) {
+        vLog(`Gathering ${platform} codesigning materials for ${type}...`)
+        const matchOptions = { type, platform } as MatchOptions
+        const match = new MatchAction(matchOptions, actionOptions)
+        await match.syncCodeSigning()
+      }
     }
   }
 

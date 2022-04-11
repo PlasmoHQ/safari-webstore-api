@@ -19,7 +19,7 @@ export abstract class ConfigFile {
 
   async writeJSON(json: any, path: string): Promise<string> {
     const content = JSON.stringify(json)
-    return await this.writeFile(content, path)
+    return await this.writeFile(path, content)
   }
   
   async writeRuby(params: {}, path: string): Promise<string> {
@@ -54,7 +54,7 @@ const wrapped = (operand: any, indent: number = 0): string => {
     "string": (operand) => `"${operand}"`
   }
   const type = types[typeof operand]
-  return type(operand).join("\n")
+  return type(operand)
 }
 
 const wrappedObject = (object: any, spaces: number = 0): string => {

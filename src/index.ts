@@ -1,9 +1,11 @@
 
 import { enableVerboseLogging, getVerboseLogger } from "~util/logging"
-import { FastlaneClient, FastlaneOptions } from "~fastlane/"
+import { FastlaneClient } from "~fastlane/"
 import { Workspace } from "~workspace/"
 import type { APIKey } from "~fastlane/config/auth"
 import type { Appfile } from "~fastlane/config/appfile"
+import type { Matchfile } from "~fastlane/config/matchfile"
+import type { Gymfile } from "~fastlane/config/gymfile"
 
 const vLog = getVerboseLogger()
 
@@ -25,11 +27,14 @@ export type KeyOptions = {
 }
 
 export type AppOptions = {
-  bundleId: string
+  bundleId: string,
+  platforms: string[]
 }
 
+// for Matchfile
 export type CodeSigningOptions = {
-  
+  readonly: boolean,
+  gitUrl: string,
 }
 
 export type ClientOptions = {
@@ -75,7 +80,10 @@ export class SafariAppStoreClient {
     const fastlane = new FastlaneClient({
       workspace: workspace.path,
       appfile: appfileMap(this.options),
-      key: keyMap(this.options)
+      matchfile: matchfileMap(this.options),
+      gymfile: gymfileMap(this.options),
+      key: keyMap(this.options),
+      platforms: this.options.platforms
     })
     if (workspace.hasXcodeProject) vLog("Skipping conversion because Xcode project already exists")
     else await fastlane.convert(extension)
@@ -96,6 +104,17 @@ const appfileMap = (ops: Options): Appfile => {
     itc_team_id: ops.itcTeamId,
     itc_team_name: ops.itcTeamName
   }
+}
+
+const matchfileMap = (ops: Options): Matchfile => {
+  return {
+    readonly: ops.readonly,
+    git_url: ops.gitUrl
+  }
+}
+
+const gymfileMap = (ops: Options): Gymfile => {
+  return {}
 }
 
 const keyMap = (options: KeyOptions): APIKey => {
