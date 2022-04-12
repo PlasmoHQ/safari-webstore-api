@@ -57,7 +57,7 @@ export class FastlaneClient {
     await matchfile.persist(workspace)
     const gymfile = new FastlaneGymfile(this.options.gymfile)
     await gymfile.persist(workspace)
-    await this.codeSigningSetup()
+    if (!options.skipMatch) await this.codeSigningSetup()
     vLog("Fastlane successfully configured")
   }
 

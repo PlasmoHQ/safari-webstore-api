@@ -36,6 +36,7 @@ export type AppOptions = {
 export type CodeSigningOptions = {
   readonly: boolean,
   gitUrl: string,
+  skipMatch: boolean
 }
 
 export type ClientOptions = {
