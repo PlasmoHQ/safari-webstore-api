@@ -18,7 +18,7 @@ export type MatchOptions = {
 export class MatchAction extends Action {
   options?: MatchOptions
 
-  constructor(options: MatchOptions, actionOptions?: ActionOptions) {
+  constructor(options: MatchOptions, actionOptions: ActionOptions) {
     super("match", actionOptions)
     this.options = options
   }

@@ -75,7 +75,9 @@ export class FastlaneClient {
 
   // build and sign app
   async gym(options?: GymOptions) {
-    const gym = new GymAction(options)
+    const actionOptions = { cwd: this.options.workspace }
+    const gym = new GymAction(options, actionOptions)
+    await gym.buildSchemes()
   }
 
   // upload and deploy to testflight
