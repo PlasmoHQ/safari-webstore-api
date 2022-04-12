@@ -76,7 +76,7 @@ export class SafariAppStoreClient {
 
   async submit(options: SubmitOptions) {
     const workspace = new Workspace(this.options.workspace)
-    const extension = await workspace.assemble(options.filePath)
+    await workspace.assemble(options.filePath)
     const fastlane = new FastlaneClient({
       workspace: workspace.path,
       appfile: appfileMap(this.options),
@@ -85,8 +85,8 @@ export class SafariAppStoreClient {
       key: keyMap(this.options),
       platforms: this.options.platforms
     })
-    if (workspace.hasXcodeProject) vLog("Skipping conversion because Xcode project already exists")
-    else await fastlane.convert(extension)
+    if (workspace.hasXcodeWorkspace) vLog("Skipping conversion because Xcode workspace already exists")
+    else await fastlane.convert(workspace)
     await fastlane.configure(this.options)
     await fastlane.gym()
     await fastlane.deliver()

@@ -16,12 +16,14 @@ specifiers:
   tsup: 5.12.1
   typescript: 4.6.3
   unzipper: 0.10.11
+  xml: ^1.0.1
 
 dependencies:
   await-spawn: 4.0.2
   fs-extra: 10.0.1
   tmp: 0.2.1
   unzipper: 0.10.11
+  xml: 1.0.1
 
 devDependencies:
   '@jest/globals': 27.5.1
@@ -3571,6 +3573,10 @@ packages:
   /xml-name-validator/3.0.0:
     resolution: {integrity: sha512-A5CUptxDsvxKJEU3yO6DuWBSJz/qizqzJKOMIfUJHETbBw/sFaDxgd6fxm1ewUaM0jZ444Fc5vC5ROYurg/4Pw==}
     dev: true
+
+  /xml/1.0.1:
+    resolution: {integrity: sha1-eLpyAgApxbyHuKgaPPzXS0ovweU=}
+    dev: false
 
   /xmlchars/2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}

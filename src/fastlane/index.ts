@@ -10,6 +10,7 @@ import { FastlaneAppfile, Appfile } from "~fastlane/config/appfile"
 import { FastlaneMatchfile, Matchfile } from "~fastlane/config/matchfile"
 import { FastlaneGymfile, Gymfile } from "~fastlane/config/gymfile"
 import type { CodeSigningOptions } from "~/"
+import type { Workspace } from "~/workspace/"
 
 const vLog = getVerboseLogger()
 
@@ -30,13 +31,14 @@ export class FastlaneClient {
     this.options = options
   }
 
-  // generate Xcode project with extension folder
-  async convert(extension: string, options?: ConvertWebExtensionOptions) {
+  // generate Xcode project and workspace from extension folder
+  async convert(workspace: Workspace, options?: ConvertWebExtensionOptions) {
     const cwd = this.options.workspace
     vLog("Converting extension...")
     const action = new ConvertWebExtensionAction(options, { cwd })
-    await action.convert(extension)
+    await action.convert(workspace.extension)
     vLog("Xcode project successfully generated")
+    await workspace.generateXcodeWorkspace()
   }
 
   // generate hardcoded Appfile

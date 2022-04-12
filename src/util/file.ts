@@ -2,6 +2,7 @@
 import tmpAsync from "tmp"
 import unzipper from "unzipper"
 import fs from "fs-extra"
+import path from "path"
 
 export const extractZip = (filePath: string, dest: string): Promise<void> => {
   return new Promise((resolve, reject) => {
@@ -23,15 +24,17 @@ export const tmp = (prefix: string): Promise<string> => {
 }
 
 // recursive ls with relative paths
-export const ls = async (dir: string, relative: string = ""): Promise<string[]> => {
+export const ls = async (dir: string, maxDepth?: number, relative: string = ""): Promise<string[]> => {
   type Path = string | string[]
   const files = await fs.readdir(dir)
   const _ls = async (file: string): Promise<Path> => {
     const absolutePath = `${dir}/${file}`
     const relativePath = `${relative}${file}`
     const stat = await fs.lstat(absolutePath)
-    if (stat.isDirectory()) return await ls(absolutePath, `${relativePath}/`)
-    return relativePath
+    const tooDeep = maxDepth && relativePath.split(path.sep).length >= maxDepth
+    if (stat.isDirectory() && !tooDeep) return await ls(absolutePath, maxDepth, `${relativePath}/`)
+    else if (stat.isDirectory()) return `${relativePath}/`
+    else return relativePath
   }
   const promises: Promise<Path>[] = await files.map(_ls)
   const paths: Path[] = await Promise.all(promises)
@@ -43,6 +46,16 @@ export const emptyDir = async (dir: string): Promise<boolean> => {
   return (length === 0)
 }
 
-export const writeKeyFile = async () => {
+export const findFile = async (dir: string, fn: (filePath: string, depth: number) => boolean, depth?: number) => {
+  const files = await ls(dir, depth)
+  return files.find((filePath) => {
+    const paths = path.normalize(filePath).split(path.sep)
+    return fn(filePath, paths.length)
+  })
+}
 
+export const findFileByExtName = async (dir: string, ext: string, depth?: number) => {
+  return await findFile(dir, (filePath) => {
+    return path.extname(filePath) === ext
+  }, depth)
 }
