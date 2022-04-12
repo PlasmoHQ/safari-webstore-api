@@ -35,8 +35,8 @@ export class FastlaneClient {
   async convert(workspace: Workspace, options?: ConvertWebExtensionOptions) {
     const cwd = this.options.workspace
     vLog("Converting extension...")
-    const action = new ConvertWebExtensionAction(options, { cwd })
-    await action.convert(workspace.extension)
+    const cwe = new ConvertWebExtensionAction(options, { cwd })
+    await cwe.convert(workspace.extension)
     vLog("Xcode project successfully generated")
     await workspace.generateXcodeWorkspace()
   }
@@ -75,16 +75,16 @@ export class FastlaneClient {
 
   // build and sign app
   async gym(options?: GymOptions) {
-    const lane = new GymAction(options)
+    const gym = new GymAction(options)
   }
 
   // upload and deploy to testflight
   private async pilot(options?: PilotOptions) {
-    const lane = new PilotAction(options)
+    const pilot = new PilotAction(options)
   }
 
   // upload and submit to the app store
   async deliver(options?: DeliverOptions) {
-    const lane = new DeliverAction(options)
+    const deliver = new DeliverAction(options)
   }
 }

@@ -28,7 +28,7 @@ export class ProcessError extends Error {
   }
 }
 
-export const spawn = async (command: string, args: Array<string>, options: SpawnOptionsWithoutStdio): Promise<string> => {
+export const spawn = async (command: string, args: Array<string>, options?: SpawnOptionsWithoutStdio): Promise<string> => {
   try {
     const stdoutStream = await _spawn(command, args, options)
     return await readStreamSync(stdoutStream)

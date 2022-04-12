@@ -6,6 +6,7 @@ import type { APIKey } from "~fastlane/config/auth"
 import type { Appfile } from "~fastlane/config/appfile"
 import type { Matchfile } from "~fastlane/config/matchfile"
 import type { Gymfile } from "~fastlane/config/gymfile"
+import { XcodeWorkspace } from "~xcode"
 
 const vLog = getVerboseLogger()
 
@@ -88,7 +89,8 @@ export class SafariAppStoreClient {
     if (workspace.hasXcodeWorkspace) vLog("Skipping conversion because Xcode workspace already exists")
     else await fastlane.convert(workspace)
     await fastlane.configure(this.options)
-    await fastlane.gym()
+    const schemes = await new XcodeWorkspace(workspace.path).getSchemes()
+    await fastlane.gym({ schemes })
     await fastlane.deliver()
   }
 }
