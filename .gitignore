@@ -3,3 +3,4 @@ key.json
 test.zip
 dist/
 .DS_Store
+template/ruby/vendor/

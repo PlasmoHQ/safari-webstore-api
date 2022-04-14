@@ -1,3 +1,7 @@
 
 # Fetched from GitHub
 gem "fastlane-plugin-safari_web_extension_converter", git: "https://github.com/plasmo-foss/fastlane-plugin-safari-web-extension-converter", branch: 'main'
+
+# Workaround to override fastlane's bundled version of xcodeproj
+# this is used within safari_web_extension_converter
+gem 'xcodeproj', git: 'https://github.com/DanielSinclair/Xcodeproj'

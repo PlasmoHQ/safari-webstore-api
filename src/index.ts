@@ -7,6 +7,7 @@ import type { Appfile } from "~fastlane/config/appfile"
 import type { Matchfile } from "~fastlane/config/matchfile"
 import type { Gymfile } from "~fastlane/config/gymfile"
 import { XcodeWorkspace } from "~xcode"
+import type { ConvertWebExtensionOptions } from "~fastlane/actions/convert"
 
 const vLog = getVerboseLogger()
 
@@ -29,6 +30,7 @@ export type KeyOptions = {
 
 export type AppOptions = {
   bundleId: string,
+  appName: string,
   platforms: string[]
 }
 
@@ -88,11 +90,11 @@ export class SafariAppStoreClient {
       platforms: this.options.platforms
     })
     if (workspace.hasXcodeWorkspace) vLog("Skipping conversion because Xcode workspace already exists")
-    else await fastlane.convert(workspace)
+    else await fastlane.convert(workspace, convertMap(this.options))
     await fastlane.configure(this.options)
     const schemes = await new XcodeWorkspace(workspace.path).getSchemes()
     await fastlane.gym({ schemes })
-    await fastlane.deliver()
+    //await fastlane.deliver()
   }
 }
 
@@ -111,13 +113,20 @@ const appfileMap = (ops: Options): Appfile => {
 
 const matchfileMap = (ops: Options): Matchfile => {
   return {
-    readonly: ops.readonly,
-    git_url: ops.gitUrl
+    app_identifier: [ops.bundleId, `${ops.bundleId}.extension`],
+    git_url: ops.gitUrl,
+    readonly: ops.readonly
   }
 }
 
 const gymfileMap = (ops: Options): Gymfile => {
-  return {}
+  return {
+    export_method: "app-store",
+    export_team_id: ops.teamId,
+    export_options: {
+      provisioningProfiles: {}
+    }
+  }
 }
 
 const keyMap = (options: KeyOptions): APIKey => {
@@ -127,5 +136,14 @@ const keyMap = (options: KeyOptions): APIKey => {
     key: options.key,
     in_house: false, // enterprise not yet supported
     duration: options.duration
+  }
+}
+
+const convertMap = (options: AppOptions): ConvertWebExtensionOptions => {
+  return {
+    app_name: options.appName,
+    bundle_identifier: options.bundleId,
+    ios_only: options.platforms.length === 1 && options.platforms[0] === "ios",
+    mac_only: options.platforms.length === 1 && options.platforms[0] === "macos"
   }
 }

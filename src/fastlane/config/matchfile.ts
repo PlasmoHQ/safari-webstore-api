@@ -3,10 +3,11 @@ import { ConfigFile } from "~fastlane/common/config"
 
 // https://docs.fastlane.tools/actions/match/
 export type Matchfile = {
+  app_identifier: string[]
   additional_cert_types?: string[],
-  readonly?: boolean,
   api_key_path?: string,
   git_url?: string
+  readonly?: boolean,
 }
 
 export class FastlaneMatchfile extends ConfigFile {

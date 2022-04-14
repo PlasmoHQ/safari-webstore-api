@@ -18,6 +18,7 @@
     "build": "tsup --dts-resolve",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles",
     "clean": "rimraf dist",
+    "bundler-update": "cd template/ruby && bundle update && rimraf vendor",
     "prepublishOnly": "run-s clean build test"
   },
   "author": "Plasmo Corp. <support@plasmo.com>",

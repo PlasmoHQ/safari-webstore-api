@@ -55,6 +55,10 @@ await client.submit({
 })
 ```
 
+# Future
+
+- Adopt (XcodeGen)[https://github.com/yonaskolb/XcodeGen] to simplify project generation and schema management
+
 # Acknowledgment
 - [fastlane](https://docs.fastlane.tools/)
 - [safari-web-extension-converter](https://developer.apple.com/documentation/safariservices/safari_web_extensions/converting_a_web_extension_for_safari)
