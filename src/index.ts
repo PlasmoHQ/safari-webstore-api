@@ -28,8 +28,13 @@ export type KeyOptions = {
   duration?: number
 }
 
+export type BundleIdsOptions = {
+  host: string,
+  extension: string
+}
+
 export type AppOptions = {
-  bundleId: string,
+  bundleIds: BundleIdsOptions,
   appName: string,
   platforms: string[]
 }
@@ -100,7 +105,7 @@ export class SafariAppStoreClient {
 
 const appfileMap = (ops: Options): Appfile => {
   return {
-    app_identifier: ops.bundleId,
+    app_identifier: ops.bundleIds.host,
     apple_id: ops.appleId,
     apple_dev_portal_id: ops.appleDevPortalId,
     team_name: ops.teamName,
@@ -113,7 +118,7 @@ const appfileMap = (ops: Options): Appfile => {
 
 const matchfileMap = (ops: Options): Matchfile => {
   return {
-    app_identifier: [ops.bundleId, `${ops.bundleId}.extension`],
+    app_identifier: [ops.bundleIds.host, ops.bundleIds.extension],
     git_url: ops.gitUrl,
     readonly: ops.readonly
   }
@@ -129,21 +134,21 @@ const gymfileMap = (ops: Options): Gymfile => {
   }
 }
 
-const keyMap = (options: KeyOptions): APIKey => {
+const keyMap = (ops: KeyOptions): APIKey => {
   return {
-    key_id: options.keyId,
-    issuer_id: options.issuerId,
-    key: options.key,
+    key_id: ops.keyId,
+    issuer_id: ops.issuerId,
+    key: ops.key,
     in_house: false, // enterprise not yet supported
-    duration: options.duration
+    duration: ops.duration
   }
 }
 
-const convertMap = (options: AppOptions): ConvertWebExtensionOptions => {
+const convertMap = (ops: AppOptions): ConvertWebExtensionOptions => {
   return {
-    app_name: options.appName,
-    bundle_identifier: options.bundleId,
-    ios_only: options.platforms.length === 1 && options.platforms[0] === "ios",
-    mac_only: options.platforms.length === 1 && options.platforms[0] === "macos"
+    app_name: ops.appName,
+    bundle_identifier: ops.bundleIds.host,
+    ios_only: ops.platforms.length === 1 && ops.platforms[0] === "ios",
+    mac_only: ops.platforms.length === 1 && ops.platforms[0] === "macos"
   }
 }
