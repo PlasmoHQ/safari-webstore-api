@@ -1,12 +1,12 @@
 
 import { enableVerboseLogging, getVerboseLogger } from "~util/logging"
 import { FastlaneClient } from "~fastlane/"
-import { Workspace } from "~workspace/"
+import Workspace from "~workspace/"
 import type { APIKey } from "~fastlane/config/auth"
 import type { Appfile } from "~fastlane/config/appfile"
 import type { Matchfile } from "~fastlane/config/matchfile"
 import type { Gymfile } from "~fastlane/config/gymfile"
-import { XcodeWorkspace } from "~xcode"
+import { XcodeWorkspace } from "~xcode/"
 import type { ConvertWebExtensionOptions } from "~fastlane/actions/convert"
 
 const vLog = getVerboseLogger()
@@ -28,22 +28,32 @@ export type KeyOptions = {
   duration?: number
 }
 
-export type BundleIdsOptions = {
-  host: string,
-  extension: string
-}
+export type Platform = "ios" | "macos"
 
 export type AppOptions = {
-  bundleIds: BundleIdsOptions,
+  bundleId: string,
+  extensionBundleId?: string,
   appName: string,
-  platforms: string[]
+  platforms?: Platform[]
 }
 
-// for Matchfile
+export type ProvisioningProfileType = 
+  "appstore" | 
+  "adhoc" | 
+  "development" |
+  "enterprise" |
+  "developer_id" |
+  "mac_installer_distribution"
+
+export type ProvisioningProfile = {
+  bundleId: string,
+  name: string,
+  type: ProvisioningProfileType,
+  platform: Platform
+}
+
 export type CodeSigningOptions = {
-  readonly: boolean,
-  gitUrl: string,
-  skipMatch: boolean
+  provisioningProfiles?: ProvisioningProfile[]
 }
 
 export type ClientOptions = {
@@ -66,6 +76,10 @@ export const requiredFields = Object.keys(errorMap) as Array<
   keyof typeof errorMap
 >
 
+const defaults = {
+  platforms: ["ios", "macos"] as Platform[]
+}
+
 type SubmitOptions = {
   filePath: string
 }
@@ -84,8 +98,19 @@ export class SafariAppStoreClient {
   }
 
   async submit(options: SubmitOptions) {
+
+    // Validate workspace
     const workspace = new Workspace(this.options.workspace)
     await workspace.assemble(options.filePath)
+
+    // Xcode build options
+    await workspace.generateExportOptions({
+      bundleId: this.options.bundleId,
+      extensionBundleId: extensionBundleId(this.options),
+      platforms: this.options.platforms || defaults.platforms,
+    })
+    
+    // Fastlane
     const fastlane = new FastlaneClient({
       workspace: workspace.path,
       appfile: appfileMap(this.options),
@@ -94,18 +119,30 @@ export class SafariAppStoreClient {
       key: keyMap(this.options),
       platforms: this.options.platforms
     })
+    await fastlane.configure()
+
+    // safari-web-extension-converter
     if (workspace.hasXcodeWorkspace) vLog("Skipping conversion because Xcode workspace already exists")
     else await fastlane.convert(workspace, convertMap(this.options))
-    await fastlane.configure(this.options)
-    const schemes = await new XcodeWorkspace(workspace.path).getSchemes()
+    
+    // Fastlane Update Project Team
+    await fastlane.updateProjectTeam(workspace, this.options.teamId)
+
+    // Fastlane Match
+    //await fastlane.match()
+
+    // Fastlane Gym
+    const schemes = await new XcodeWorkspace(workspace.path).schemes()
     await fastlane.gym({ schemes })
+
+    // Fastlane Deliver
     //await fastlane.deliver()
   }
 }
 
 const appfileMap = (ops: Options): Appfile => {
   return {
-    app_identifier: ops.bundleIds.host,
+    app_identifier: ops.bundleId,
     apple_id: ops.appleId,
     apple_dev_portal_id: ops.appleDevPortalId,
     team_name: ops.teamName,
@@ -118,19 +155,21 @@ const appfileMap = (ops: Options): Appfile => {
 
 const matchfileMap = (ops: Options): Matchfile => {
   return {
-    app_identifier: [ops.bundleIds.host, ops.bundleIds.extension],
-    git_url: ops.gitUrl,
-    readonly: ops.readonly
+    app_identifier: [ops.bundleId, extensionBundleId(ops)],
+    //git_url: ops.gitUrl,
+    //readonly: ops.readonly
   }
+}
+
+const extensionBundleId = (ops: Options): string => {
+  const extensionBundleId = `${ops.bundleId}.extension`
+  return ops.extensionBundleId || extensionBundleId
 }
 
 const gymfileMap = (ops: Options): Gymfile => {
   return {
     export_method: "app-store",
-    export_team_id: ops.teamId,
-    export_options: {
-      provisioningProfiles: {}
-    }
+    export_team_id: ops.teamId
   }
 }
 
@@ -147,7 +186,7 @@ const keyMap = (ops: KeyOptions): APIKey => {
 const convertMap = (ops: AppOptions): ConvertWebExtensionOptions => {
   return {
     app_name: ops.appName,
-    bundle_identifier: ops.bundleIds.host,
+    bundle_identifier: ops.bundleId,
     ios_only: ops.platforms.length === 1 && ops.platforms[0] === "ios",
     mac_only: ops.platforms.length === 1 && ops.platforms[0] === "macos"
   }

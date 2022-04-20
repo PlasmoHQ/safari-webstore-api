@@ -1,15 +1,10 @@
 
 import { ConfigFile } from "~fastlane/common/config"
 
-export type GymExportOptions = {
-  provisioningProfiles: {}
-}
-
 // https://docs.fastlane.tools/actions/gym/#gymfile
 export type Gymfile = {
   export_method: string,
-  export_team_id: string,
-  export_options: GymExportOptions
+  export_team_id: string
 }
 
 export class FastlaneGymfile extends ConfigFile {

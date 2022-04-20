@@ -4,13 +4,14 @@ import { MatchAction, MatchOptions } from "./actions/match"
 import { GymAction, GymOptions } from "./actions/gym"
 import { PilotAction, PilotOptions } from "./actions/pilot"
 import { DeliverAction, DeliverOptions } from "./actions/deliver"
+import { UpdateProjectTeamAction, UpdateProjectTeamOptions } from "./actions/updateProjectTeam"
 import { getVerboseLogger } from "~util/logging"
 import { FastlaneAPIKey, APIKey } from "~fastlane/config/auth"
 import { FastlaneAppfile, Appfile } from "~fastlane/config/appfile"
 import { FastlaneMatchfile, Matchfile } from "~fastlane/config/matchfile"
 import { FastlaneGymfile, Gymfile } from "~fastlane/config/gymfile"
-import type { CodeSigningOptions } from "~/"
 import type { Workspace } from "~/workspace/"
+import type { Options } from "~/index"
 
 const vLog = getVerboseLogger()
 
@@ -31,6 +32,30 @@ export class FastlaneClient {
     this.options = options
   }
 
+  // generate hardcoded Fastlane files
+  // auth with developer portal and itunes connect
+  async configure() {
+    vLog("Configuring Fastlane...")
+    const { workspace } = this.options
+    
+    const appfile = new FastlaneAppfile(this.options.appfile)
+    await appfile.persist(workspace)
+
+    const key = new FastlaneAPIKey(this.options.key)
+    this.apiKeyPath = await key.persist(workspace)
+
+    const matchfile = new FastlaneMatchfile({
+      api_key_path: this.apiKeyPath,
+      ...this.options.matchfile
+    })
+    await matchfile.persist(workspace)
+
+    const gymfile = new FastlaneGymfile(this.options.gymfile)
+    await gymfile.persist(workspace)
+
+    vLog("Fastlane successfully configured")
+  }
+
   // generate Xcode project and workspace from extension folder
   async convert(workspace: Workspace, options?: ConvertWebExtensionOptions) {
     const cwd = this.options.workspace
@@ -41,24 +66,16 @@ export class FastlaneClient {
     await workspace.generateXcodeWorkspace()
   }
 
-  // generate hardcoded Appfile
-  // auth with developer portal and itunes connect
-  async configure(options?: CodeSigningOptions) {
-    vLog("Configuring Fastlane...")
-    const { workspace } = this.options
-    const appfile = new FastlaneAppfile(this.options.appfile)
-    await appfile.persist(workspace)
-    const key = new FastlaneAPIKey(this.options.key)
-    this.apiKeyPath = await key.persist(workspace)
-    const matchfile = new FastlaneMatchfile({
-      api_key_path: this.apiKeyPath,
-      ...this.options.matchfile
-    })
-    await matchfile.persist(workspace)
-    const gymfile = new FastlaneGymfile(this.options.gymfile)
-    await gymfile.persist(workspace)
-    if (!options.skipMatch) await this.codeSigningSetup()
-    vLog("Fastlane successfully configured")
+  async updateProjectTeam(workspace: Workspace, teamid: string) {
+    const cwd = this.options.workspace
+    const path = await workspace.xcodeProjectDirectory()
+    vLog("Updating project team...")
+    const updateTeam = new UpdateProjectTeamAction({ teamid, path }, { cwd })
+    await updateTeam.update()
+  }
+
+  async match(options?: Options) {
+    //if (!options.skipMatch) await this.codeSigningSetup()
   }
 
   private async codeSigningSetup() {
@@ -81,7 +98,7 @@ export class FastlaneClient {
   }
 
   // upload and deploy to testflight
-  private async pilot(options?: PilotOptions) {
+  async pilot(options?: PilotOptions) {
     const pilot = new PilotAction(options)
   }
 

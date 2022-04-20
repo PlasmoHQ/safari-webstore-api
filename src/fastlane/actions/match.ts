@@ -16,7 +16,7 @@ export type MatchOptions = {
 // additional params like git/S3 are provided by ENV
 // https://docs.fastlane.tools/actions/match/
 export class MatchAction extends Action {
-  options?: MatchOptions
+  options: MatchOptions
 
   constructor(options: MatchOptions, actionOptions: ActionOptions) {
     super("match", actionOptions)

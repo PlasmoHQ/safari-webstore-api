@@ -5,8 +5,17 @@ import { ls, tmp, extractZip, findFileByExtName } from '~util/file'
 import { getVerboseLogger } from '~util/logging'
 import xml from 'xml'
 import path from 'path'
+import ExportOptionsPlist from "~xcode/config/exportOptions"
+import type { ProvisioningProfile, Platform } from "~/index"
 
 const vLog = getVerboseLogger()
+
+export type GenerateExportOptions = {
+  bundleId: string,
+  extensionBundleId: string, 
+  platforms: Platform[],
+  provisioningProfiles?: ProvisioningProfile[]
+}
 
 export class Workspace {
   path: string
@@ -113,8 +122,23 @@ export class Workspace {
     await fs.writeFile(filePath, xmlString)
     this.hasXcodeWorkspace = true
   }
+
+  async generateExportOptions(options: GenerateExportOptions) {
+    const { bundleId, extensionBundleId, platforms } = options
+    for (const platform of platforms) {
+      let exportOptionsPlist
+      if (options.provisioningProfiles) {
+        exportOptionsPlist = ExportOptionsPlist.userProvided(options.provisioningProfiles, platform)
+      } else {
+        exportOptionsPlist = ExportOptionsPlist.matchDefaults(bundleId, extensionBundleId, platform)
+      }
+      await exportOptionsPlist.persist(this.path)
+    }
+  }
 }
 
 const hasRequired = (required, files) => {
   return required.every(f => files.includes(f))
 }
+
+export default Workspace
