@@ -58,6 +58,22 @@ export type CodeSigningOptions = {
   provisioningProfiles?: ProvisioningProfile[]
 }
 
+export type MatchOptions = {
+  matchStorageMode: string,
+  matchGitUrl: string,
+  matchGitBranch: string,
+  matchGitBasicAuthorization: string,
+  matchGitBearerAuthorization: string,
+  matchGitPrivateKey: string,
+  matchGoogleCloudBucketName: string,
+  matchGoogleCloudKeysFile: string,
+  matchGoogleCloudProjectId: string,
+  matchS3Region: string,
+  matchS3AccessKey: string,
+  matchS3SecretAccessKey: string,
+  matchS3Bucket: string
+}
+
 export type ClientOptions = {
   workspace?: string
   verbose?: boolean
@@ -68,6 +84,7 @@ export type Options =
             IdentityOptions & 
             KeyOptions & 
             CodeSigningOptions &
+            MatchOptions &
             ClientOptions
 
 export const errorMap = {
@@ -131,7 +148,7 @@ export class SafariAppStoreClient {
     })
 
     // Fastlane Match
-    //await fastlane.match()
+    await fastlane.match()
 
     // Fastlane Gym
     const xcodeWorkspace = await XcodeWorkspace.findWorkspace(workspace.path)
@@ -159,8 +176,19 @@ const appfileMap = (ops: Options): Appfile => {
 const matchfileMap = (ops: Options): Matchfile => {
   return {
     app_identifier: [ops.bundleId, extensionBundleId(ops)],
-    //git_url: ops.gitUrl,
-    //readonly: ops.readonly
+    storage_mode: ops.matchStorageMode,
+    git_url: ops.matchGitUrl,
+    git_branch: ops.matchGitBranch,
+    git_basic_authorization: ops.matchGitBasicAuthorization,
+    git_bearer_authorization: ops.matchGitBearerAuthorization,
+    git_private_key: ops.matchGitPrivateKey,
+    google_cloud_bucket_name: ops.matchGoogleCloudBucketName,
+    google_cloud_keys_file: ops.matchGoogleCloudKeysFile,
+    google_cloud_project_id: ops.matchGoogleCloudProjectId,
+    s3_region: ops.matchS3Region,
+    s3_access_key: ops.matchS3AccessKey,
+    s3_secret_access_key: ops.matchS3SecretAccessKey,
+    s3_bucket: ops.matchS3Bucket
   }
 }
 

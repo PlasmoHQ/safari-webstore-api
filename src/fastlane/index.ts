@@ -1,16 +1,15 @@
 
 import { ConvertWebExtensionAction, ConvertWebExtensionOptions } from "~fastlane/actions/convert"
-import { MatchAction, MatchOptions } from "./actions/match"
-import { GymAction, GymOptions } from "./actions/gym"
-import { PilotAction, PilotOptions } from "./actions/pilot"
-import { DeliverAction, DeliverOptions } from "./actions/deliver"
-import { UpdateProjectTeamAction, UpdateProjectTeamOptions } from "./actions/updateProjectTeam"
+import { MatchAction, MatchOptions } from "~fastlane/actions/match"
+import { GymAction, GymOptions } from "~fastlane/actions/gym"
+import { PilotAction, PilotOptions } from "~fastlane/actions/pilot"
+import { DeliverAction, DeliverOptions } from "~fastlane/actions/deliver"
+import { UpdateProjectTeamAction } from "~fastlane/actions/updateProjectTeam"
 import { getVerboseLogger } from "~util/logging"
 import { FastlaneAPIKey, APIKey } from "~fastlane/config/auth"
 import { FastlaneAppfile, Appfile } from "~fastlane/config/appfile"
 import { FastlaneMatchfile, Matchfile } from "~fastlane/config/matchfile"
 import { FastlaneGymfile, Gymfile } from "~fastlane/config/gymfile"
-import type { Workspace } from "~/workspace/"
 import type { Options } from "~/index"
 import { XcodeProject, XcodeWorkspace } from "~xcode"
 
@@ -81,18 +80,17 @@ export class FastlaneClient {
   }
 
   async match(options?: Options) {
-    //if (!options.skipMatch) await this.codeSigningSetup()
+    await this.codeSigningSetup()
   }
 
   private async codeSigningSetup() {
     const actionOptions = { cwd: this.options.workspace }
+    const type = "appstore"
     for (const platform of this.options.platforms) {
-      for (const type of ["development", "appstore"]) {
-        vLog(`Gathering ${platform} codesigning materials for ${type}...`)
-        const matchOptions = { type, platform } as MatchOptions
-        const match = new MatchAction(matchOptions, actionOptions)
-        await match.syncCodeSigning()
-      }
+      vLog(`Gathering ${platform} codesigning materials for ${type}...`)
+      const matchOptions = { type, platform, readonly: true } as MatchOptions
+      const match = new MatchAction(matchOptions, actionOptions)
+      await match.syncCodeSigning()
     }
   }
 
