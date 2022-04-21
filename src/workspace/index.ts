@@ -1,26 +1,16 @@
 
 import fs from "fs-extra"
 import { spawn } from '~util/process'
-import { ls, tmp, extractZip, findFileByExtName } from '~util/file'
+import { ls, tmp, extractZip } from '~util/file'
 import { getVerboseLogger } from '~util/logging'
-import xml from 'xml'
-import path from 'path'
-import ExportOptionsPlist from "~xcode/config/exportOptions"
-import type { ProvisioningProfile, Platform } from "~/index"
+import { XcodeProject, XcodeWorkspace } from "~xcode/"
 
 const vLog = getVerboseLogger()
-
-export type GenerateExportOptions = {
-  bundleId: string,
-  extensionBundleId: string, 
-  platforms: Platform[],
-  provisioningProfiles?: ProvisioningProfile[]
-}
 
 export class Workspace {
   path: string
   extension: string
-  hasXcodeWorkspace: boolean
+  hasXcode: boolean
 
   constructor(path?: string) {
     this.path = path
@@ -37,7 +27,7 @@ export class Workspace {
   private async validate(): Promise<string> {
     vLog("Validating provided workspace...")
     await fs.ensureDir(this.path)
-    await this.validateXcodeWorkspace()
+    await this.validateXcode()
     await this.validateRuby()
     await this.validateFastlane()
     return this.path
@@ -89,51 +79,24 @@ export class Workspace {
     return await spawn('bundle', ['install'], { cwd })
   }
 
-  async xcodeProjectDirectory(): Promise<string> {
-    return await findFileByExtName(this.path, '.xcodeproj', 2)
-  }
-  
-  async xcodeWorkspaceDirectory(): Promise<string> {
-    return await findFileByExtName(this.path, '.xcworkspace', 1)
-  }
-
-  private async validateXcodeWorkspace() {
-    const xcworkspace = await this.xcodeWorkspaceDirectory()
-    const xcodeproj = await this.xcodeProjectDirectory()
-    if (xcworkspace && xcodeproj) {
-      this.hasXcodeWorkspace = true
+  private async validateXcode() {
+    const xcworkspace = await XcodeWorkspace.findWorkspace(this.path)
+    const xcodeprojs = await XcodeProject.findProjects(this.path)
+    const hasXcodeproj = xcodeprojs.length > 0
+    if (xcworkspace && hasXcodeproj) {
+      this.hasXcode = true
       vLog("Found Xcode project and workspace in static workspace...")
-    } else if (xcodeproj) {
+    } else if (hasXcodeproj) {
       vLog("Found Xcode project in static workspace...")
-      await this.generateXcodeWorkspace()
+      await this.generateXcodeWorkspace(xcodeprojs)
     }
   }
 
-  async generateXcodeWorkspace() {
+  private async generateXcodeWorkspace(xcodeprojs: XcodeProject[]) {
     vLog("Generating Xcode workspace...")
-    const xcodeprojPath = await this.xcodeProjectDirectory()
-    const name = path.basename(xcodeprojPath, '.xcodeproj')
-    const fileRef = { FileRef: [{ _attr: { location: `container:${xcodeprojPath}` }}] }
-    const workspace = { Workspace: [{ _attr: { version: '1.0' }}, fileRef] }
-    const xmlString = xml(workspace, { declaration: true, indent: '\t' })
-    const workspaceDirectory = `${this.path}/${name}.xcworkspace`
-    await fs.ensureDir(workspaceDirectory)
-    const filePath = `${workspaceDirectory}/contents.xcworkspacedata`
-    await fs.writeFile(filePath, xmlString)
-    this.hasXcodeWorkspace = true
-  }
-
-  async generateExportOptions(options: GenerateExportOptions) {
-    const { bundleId, extensionBundleId, platforms } = options
-    for (const platform of platforms) {
-      let exportOptionsPlist
-      if (options.provisioningProfiles) {
-        exportOptionsPlist = ExportOptionsPlist.userProvided(options.provisioningProfiles, platform)
-      } else {
-        exportOptionsPlist = ExportOptionsPlist.matchDefaults(bundleId, extensionBundleId, platform)
-      }
-      await exportOptionsPlist.persist(this.path)
-    }
+    const { name } = xcodeprojs[0] // takes workspace name from first project
+    await XcodeWorkspace.generate(this.path, name, xcodeprojs)
+    this.hasXcode = true
   }
 }
 

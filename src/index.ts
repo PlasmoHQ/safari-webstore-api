@@ -8,6 +8,7 @@ import type { Matchfile } from "~fastlane/config/matchfile"
 import type { Gymfile } from "~fastlane/config/gymfile"
 import { XcodeWorkspace } from "~xcode/"
 import type { ConvertWebExtensionOptions } from "~fastlane/actions/convert"
+import { ExportOptionsPlist } from "~xcode/config/exportOptions"
 
 const vLog = getVerboseLogger()
 
@@ -34,6 +35,7 @@ export type AppOptions = {
   bundleId: string,
   extensionBundleId?: string,
   appName: string,
+  appCategory: string,
   platforms?: Platform[]
 }
 
@@ -103,13 +105,6 @@ export class SafariAppStoreClient {
     const workspace = new Workspace(this.options.workspace)
     await workspace.assemble(options.filePath)
 
-    // Xcode build options
-    await workspace.generateExportOptions({
-      bundleId: this.options.bundleId,
-      extensionBundleId: extensionBundleId(this.options),
-      platforms: this.options.platforms || defaults.platforms,
-    })
-    
     // Fastlane
     const fastlane = new FastlaneClient({
       workspace: workspace.path,
@@ -122,19 +117,27 @@ export class SafariAppStoreClient {
     await fastlane.configure()
 
     // safari-web-extension-converter
-    if (workspace.hasXcodeWorkspace) vLog("Skipping conversion because Xcode workspace already exists")
-    else await fastlane.convert(workspace, convertMap(this.options))
+    if (workspace.hasXcode) vLog("Skipping conversion because Xcode workspace already exists")
+    else await fastlane.convert(workspace.path, convertMap(this.options))
     
     // Fastlane Update Project Team
-    await fastlane.updateProjectTeam(workspace, this.options.teamId)
+    await fastlane.updateProjectTeam(this.options.teamId)
+    
+    // Xcode build options
+    await ExportOptionsPlist.generate(workspace.path, {
+      bundleId: this.options.bundleId,
+      extensionBundleId: extensionBundleId(this.options),
+      platforms: this.options.platforms || defaults.platforms,
+    })
 
     // Fastlane Match
     //await fastlane.match()
 
     // Fastlane Gym
-    const schemes = await new XcodeWorkspace(workspace.path).schemes()
+    const xcodeWorkspace = await XcodeWorkspace.findWorkspace(workspace.path)
+    const schemes = await xcodeWorkspace.schemes()
     await fastlane.gym({ schemes })
-
+    
     // Fastlane Deliver
     //await fastlane.deliver()
   }

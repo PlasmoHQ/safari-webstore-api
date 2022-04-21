@@ -1,5 +1,5 @@
 
-import { ConvertWebExtensionAction, ConvertWebExtensionOptions } from "./actions/convert"
+import { ConvertWebExtensionAction, ConvertWebExtensionOptions } from "~fastlane/actions/convert"
 import { MatchAction, MatchOptions } from "./actions/match"
 import { GymAction, GymOptions } from "./actions/gym"
 import { PilotAction, PilotOptions } from "./actions/pilot"
@@ -12,6 +12,7 @@ import { FastlaneMatchfile, Matchfile } from "~fastlane/config/matchfile"
 import { FastlaneGymfile, Gymfile } from "~fastlane/config/gymfile"
 import type { Workspace } from "~/workspace/"
 import type { Options } from "~/index"
+import { XcodeProject, XcodeWorkspace } from "~xcode"
 
 const vLog = getVerboseLogger()
 
@@ -57,21 +58,26 @@ export class FastlaneClient {
   }
 
   // generate Xcode project and workspace from extension folder
-  async convert(workspace: Workspace, options?: ConvertWebExtensionOptions) {
+  async convert(extensionPath: string, options?: ConvertWebExtensionOptions) {
     const cwd = this.options.workspace
     vLog("Converting extension...")
     const cwe = new ConvertWebExtensionAction(options, { cwd })
-    await cwe.convert(workspace.extension)
+    await cwe.convert(extensionPath)
     vLog("Xcode project successfully generated")
-    await workspace.generateXcodeWorkspace()
+    const xcodeprojs = await XcodeProject.findProjects(cwd)
+    const xcodeproj = xcodeprojs[0]
+    await XcodeWorkspace.generate(cwd, xcodeproj.name, xcodeprojs)
   }
 
-  async updateProjectTeam(workspace: Workspace, teamid: string) {
+  async updateProjectTeam(teamid: string) {
     const cwd = this.options.workspace
-    const path = await workspace.xcodeProjectDirectory()
-    vLog("Updating project team...")
-    const updateTeam = new UpdateProjectTeamAction({ teamid, path }, { cwd })
-    await updateTeam.update()
+    const xcodeprojs = await XcodeProject.findProjects(cwd)
+    vLog("Updating project teams...")
+    for (const xcodeproj of xcodeprojs) {
+      const { filePath } = xcodeproj
+      const updateTeam = new UpdateProjectTeamAction({ teamid, path: filePath }, { cwd })
+      await updateTeam.update()
+    }
   }
 
   async match(options?: Options) {

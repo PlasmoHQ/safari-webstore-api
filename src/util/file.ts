@@ -46,12 +46,23 @@ export const emptyDir = async (dir: string): Promise<boolean> => {
   return (length === 0)
 }
 
-export const findFile = async (dir: string, fn: (filePath: string, depth: number) => boolean, depth?: number) => {
+export const filterFiles = async (dir: string, fn: (filePath: string, depth: number) => boolean, depth?: number) => {
   const files = await ls(dir, depth)
-  return files.find((filePath) => {
+  return files.filter((filePath) => {
     const paths = path.normalize(filePath).split(path.sep)
     return fn(filePath, paths.length)
   })
+}
+
+export const filterFilesByExtName = async (dir: string, ext: string, depth?: number) => {
+  return await filterFiles(dir, (filePath) => {
+    return path.extname(filePath) === ext
+  }, depth)
+}
+
+export const findFile = async (dir: string, fn: (filePath: string, depth: number) => boolean, depth?: number) => {
+  const files = await filterFiles(dir, fn, depth)
+  return files[0]
 }
 
 export const findFileByExtName = async (dir: string, ext: string, depth?: number) => {

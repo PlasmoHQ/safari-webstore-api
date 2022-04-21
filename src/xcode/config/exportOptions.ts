@@ -12,6 +12,13 @@ export type ExportOptions = {
   }
 }
 
+export type GenerateExportOptions = {
+  bundleId: string,
+  extensionBundleId: string, 
+  platforms: Platform[],
+  provisioningProfiles?: ProvisioningProfile[]
+}
+
 export class ExportOptionsPlist {
   platform: string
   options: ExportOptions
@@ -19,6 +26,19 @@ export class ExportOptionsPlist {
   constructor(platform: Platform, options: ExportOptions) {
     this.platform = platform
     this.options = options
+  }
+
+  static async generate(path, options: GenerateExportOptions) {
+    const { bundleId, extensionBundleId, platforms } = options
+    for (const platform of platforms) {
+      let exportOptionsPlist
+      if (options.provisioningProfiles) {
+        exportOptionsPlist = ExportOptionsPlist.userProvided(options.provisioningProfiles, platform)
+      } else {
+        exportOptionsPlist = ExportOptionsPlist.matchDefaults(bundleId, extensionBundleId, platform)
+      }
+      await exportOptionsPlist.persist(path)
+    }
   }
 
   async persist(dir: string) {
