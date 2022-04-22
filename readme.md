@@ -15,9 +15,17 @@ Feature includes:
 - Bundler ```gem install bundler```
 
 ## Usage
-- ```bundle config set --local path 'vendor/bundle'```
-- ```bundle install```
-- ```bundle exec fastlane [lane]```
+- Create cert storage with Xcode Match (reference [CodeSigning.guide](https://codesigning.guide/))
+- Create appIds (bundle identifiers) in App Store Connect manually or with Fastlane Produce
+
+## After App Store delivery
+- Create App Store page metadata
+- Manually submit the App for Review
+
+## ENV variables that may be helpful
+- FASTLANE_PASSWORD (Apple ID password)
+- FASTLANE_ITC_TEAM_NAME (team name)
+- FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD
 
 ## Fastlane GitHub Action Workflow
 ```yaml
@@ -36,8 +44,8 @@ jobs:
         uses: ruby/setup-ruby@v1.99.0
         with:
           bundler-cache: true
-      - name: Fastlane Release
-        run: bundle exec fastlane release
+      - name: Safari Webstore Upload
+        run: this-is-the-command
 ```
 
 ## Node.js API
@@ -46,7 +54,17 @@ jobs:
 import { SafariWebstoreClient } from "@plasmo-corp/swu"
 
 const client = new SafariWebstoreClient({
-
+  "bundleId": "com.plasmo.mock",
+  "appName": "Plasmo Mock",
+  "appCategory": "developer-tools",
+  "platforms": ["ios", "macos"],
+  "appleId": "",
+  "teamId": "",
+  "teamName": "Plasmo Corp.",
+  "keyId": "",
+  "issuerId": "",
+  "key": "",
+  "matchGitUrl": ""
 })
 
 
@@ -57,7 +75,7 @@ await client.submit({
 
 # Future
 
-- Adopt (XcodeGen)[https://github.com/yonaskolb/XcodeGen] to simplify project generation and schema management
+- Adopt [XcodeGen](https://github.com/yonaskolb/XcodeGen) to simplify project generation and schema management
 
 # Acknowledgment
 - [fastlane](https://docs.fastlane.tools/)

@@ -11,8 +11,13 @@ export type DeliverOptions = {
 export class DeliverAction extends Action {
   options?: DeliverOptions
 
-  constructor(options: DeliverOptions, actionOptions?: ActionOptions) {
+  constructor(options: DeliverOptions, actionOptions: ActionOptions) {
     super("deliver", actionOptions)
     this.options = options
+  }
+
+  async upload() {
+    vLog("Executing Deliver to upload to iTunes Connect...")
+    await super.run([], { force: true, automatic_release: false })
   }
 }

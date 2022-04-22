@@ -108,6 +108,7 @@ export class FastlaneClient {
 
   // upload and submit to the app store
   async deliver(options?: DeliverOptions) {
-    const deliver = new DeliverAction(options)
+    const deliver = new DeliverAction(options, { cwd: this.options.workspace })
+    await deliver.upload()
   }
 }
