@@ -5,6 +5,7 @@ import fs from 'fs-extra'
 import xml from 'xml'
 import path from 'path'
 import XcodeBuild from '~xcode/xcrun/xcodebuild'
+import plist from 'plist'
 
 const vLog = getVerboseLogger()
 
@@ -47,6 +48,29 @@ export class XcodeWorkspace {
     vLog("Fetching Xcode Workspace schemes...")
     const workspace = await this.workspace()
     return workspace.schemes.slice(0, 2)
+  }
+
+  private async findInfoPlists(): Promise<string[]> {
+    const plists = await filterFilesByExtName(this.parentDirectory, '.plist', 3)
+    return plists.filter((plist) => {
+      return plist.endsWith('(App)/Info.plist')
+    }).map((plistPath) => {
+      return `${this.parentDirectory}/${plistPath}`
+    })
+  }
+
+  async writeKeyToInfoPlists(key: string, value: any) {
+    vLog(`Writing ${key}:${value} to info plists...`)
+    const plists = await this.findInfoPlists()
+    for (const plistPath of plists) {
+      vLog(`Reading ${plistPath}`)
+      const xmlString = await fs.readFileSync(plistPath, 'utf8')
+      const json = plist.parse(xmlString)
+      json[key] = value
+      const jsonString = plist.build(json)
+      vLog(`Writing ${key}:${value} to ${plistPath}`)
+      await fs.writeFileSync(plistPath, jsonString, 'utf8')
+    }
   }
 }
 

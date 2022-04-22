@@ -147,16 +147,19 @@ export class SafariAppStoreClient {
       platforms: this.options.platforms || defaults.platforms,
     })
 
+    // Add App Category
+    const xcodeWorkspace = await XcodeWorkspace.findWorkspace(workspace.path)
+    await xcodeWorkspace.writeKeyToInfoPlists('LSApplicationCategoryType', `public.app-category.${this.options.appCategory}`)
+
     // Fastlane Match
     await fastlane.match()
 
     // Fastlane Gym
-    const xcodeWorkspace = await XcodeWorkspace.findWorkspace(workspace.path)
     const schemes = await xcodeWorkspace.schemes()
     await fastlane.gym({ schemes })
     
     // Fastlane Deliver
-    //await fastlane.deliver()
+    await fastlane.deliver()
   }
 }
 
