@@ -58,7 +58,7 @@ export class Workspace {
   }
 
   private async generateRuby() {
-    vLog("Generating Ruby configuration...")
+    vLog(`Generating Ruby configuration is ${__dirname}`)
     fs.copySync('./template/ruby', this.path)
   }
 
