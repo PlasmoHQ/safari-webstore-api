@@ -58,8 +58,8 @@ export class Workspace {
   }
 
   private async generateRuby() {
-    vLog(`Generating Ruby configuration is ${__dirname}`)
-    fs.copySync('./template/ruby', this.path)
+    vLog(`Generating Ruby configuration in ${__dirname}`)
+    fs.copySync(`${__dirname}/template/ruby`, this.path)
   }
 
   private async validateFastlane() {
@@ -70,7 +70,7 @@ export class Workspace {
   
   private async generateFastlane() {
     vLog("Generating Fastlane configuration...")
-    fs.copySync('./template/fastlane', `${this.path}/fastlane`)
+    fs.copySync(`${__dirname}/template/fastlane`, `${this.path}/fastlane`)
   }
 
   private async installRubyDependencies() {
