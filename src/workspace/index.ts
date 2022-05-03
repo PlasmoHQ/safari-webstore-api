@@ -19,6 +19,7 @@ export class Workspace {
   async assemble(zipPath: string) {
     if (this.path) await this.validate()
     else this.path = await this.create()
+    await this.generate()
     await this.installRubyDependencies()
     this.extension = await this.extractExtension(zipPath)
   }
@@ -45,11 +46,14 @@ export class Workspace {
     vLog("Creating tmp directory...")
     const dir = await tmp('plasmo-safari')
     vLog("Created tmp directory at: ", dir)
+    return dir
+  }
+
+  private async generate() {
     vLog("Workspace is empty, generating...")
     await this.generateRuby()
     await this.generateFastlane()
-    vLog("Workspace generated at: ", dir)
-    return dir
+    vLog("Workspace generated at: ", this.path)
   }
   
   private async validateRuby() {
@@ -58,7 +62,7 @@ export class Workspace {
   }
 
   private async generateRuby() {
-    vLog(`Generating Ruby configuration in ${__dirname}`)
+    vLog(`Generating Ruby configuration in ${this.path}`)
     fs.copySync(`${__dirname}/template/ruby`, this.path)
   }
 
