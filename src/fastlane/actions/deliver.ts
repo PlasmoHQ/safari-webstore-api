@@ -5,7 +5,8 @@ import { getVerboseLogger } from "~util/logging"
 const vLog = getVerboseLogger()
 
 export type DeliverOptions = {
-
+  ipa?: string,
+  pkg?: string
 }
 
 export class DeliverAction extends Action {
@@ -17,7 +18,15 @@ export class DeliverAction extends Action {
   }
 
   async upload() {
+    const { ipa, pkg } = this.options
     vLog("Executing Deliver to upload to iTunes Connect...")
-    await super.run([], { force: true, automatic_release: false })
+    await super.run([], { 
+      force: true, 
+      automatic_release: false,
+      skip_screenshots: true,
+      skip_metadata: true,
+      ipa,
+      pkg
+    })
   }
 }

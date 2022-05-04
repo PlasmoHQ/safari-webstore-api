@@ -22,7 +22,7 @@ export class FastlaneExec {
 const reduceParams = (params: {} = {}) => {
   return Object.entries(params).reduce((acc, entry) => {
     const [key, value] = entry
-    acc.push(`${key}:${value}`)
+    if (value !== undefined) acc.push(`${key}:${value}`)
     return acc
   }, [])
 }

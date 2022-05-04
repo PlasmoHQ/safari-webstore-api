@@ -156,10 +156,11 @@ export class SafariAppStoreClient {
 
     // Fastlane Gym
     const schemes = await xcodeWorkspace.schemes()
-    await fastlane.gym({ schemes })
+    const { ipa, pkg } = await fastlane.gym({ schemes, output_name: this.options.appName })
     
     // Fastlane Deliver
-    await fastlane.deliver()
+    await fastlane.deliver({ ipa })
+    await fastlane.deliver({ pkg })
   }
 }
 
