@@ -135,7 +135,7 @@ export class SafariAppStoreClient {
 
     // safari-web-extension-converter
     if (workspace.hasXcode) vLog("Skipping conversion because Xcode workspace already exists")
-    else await fastlane.convert(workspace.path, convertMap(this.options))
+    else await fastlane.convert(workspace.extension, convertMap(this.options))
     
     // Fastlane Update Project Team
     await fastlane.updateProjectTeam(this.options.teamId)
