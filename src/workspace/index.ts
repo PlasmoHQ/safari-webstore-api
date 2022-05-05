@@ -2,10 +2,10 @@
 import fs from "fs-extra"
 import { spawn } from '~util/process'
 import { ls, tmp, extractZip } from '~util/file'
-import { getVerboseLogger } from '~util/logging'
+import { getLogger } from '~util/logging'
 import { XcodeProject, XcodeWorkspace } from "~xcode/"
 
-const vLog = getVerboseLogger()
+const log = getLogger()
 
 export class Workspace {
   path: string
@@ -26,7 +26,7 @@ export class Workspace {
 
   // user provided workspace (bring your own ruby and fastfile)
   private async validate(): Promise<string> {
-    vLog("Validating provided workspace...")
+    log.debug("Validating provided workspace...")
     await fs.ensureDir(this.path)
     await this.validateXcode()
     await this.validateRuby()
@@ -36,24 +36,25 @@ export class Workspace {
   
   private async extractExtension(zipPath: string): Promise<string> {
     const extension = `${this.path}/extension/`
-    vLog("Extracting extension...")
+    log.debug("Extracting extension...")
     await extractZip(zipPath, extension)
-    vLog("Extension extracted to: ", extension)
+    log.debug("Extension extracted to: ", extension)
+    log.success("Extension extracted")
     return extension
   }
 
   private async create(): Promise<string> {
-    vLog("Creating tmp directory...")
+    log.debug("Creating tmp directory...")
     const dir = await tmp('plasmo-safari')
-    vLog("Created tmp directory at: ", dir)
+    log.debug("Created tmp directory at: ", dir)
     return dir
   }
 
   private async generate() {
-    vLog("Workspace is empty, generating...")
+    log.debug("Workspace is empty, generating...")
     await this.generateRuby()
     await this.generateFastlane()
-    vLog("Workspace generated at: ", this.path)
+    log.debug("Workspace generated at: ", this.path)
   }
   
   private async validateRuby() {
@@ -62,7 +63,7 @@ export class Workspace {
   }
 
   private async generateRuby() {
-    vLog(`Generating Ruby configuration in ${this.path}`)
+    log.debug(`Generating Ruby configuration in ${this.path}`)
     fs.copySync(`${__dirname}/template/ruby`, this.path)
   }
 
@@ -73,14 +74,16 @@ export class Workspace {
   }
   
   private async generateFastlane() {
-    vLog("Generating Fastlane configuration...")
+    log.info("Generating Fastlane configuration...")
     fs.copySync(`${__dirname}/template/fastlane`, `${this.path}/fastlane`)
+    log.info("Fastlane template generated")
   }
 
   private async installRubyDependencies() {
-    vLog("Installing Ruby dependencies...")
+    log.info("Installing Ruby dependencies...")
     const cwd = this.path
-    return await spawn('bundle', ['install'], { cwd })
+    await spawn('bundle', ['install'], { cwd })
+    log.success("Ruby dependencies installed")
   }
 
   private async validateXcode() {
@@ -89,15 +92,15 @@ export class Workspace {
     const hasXcodeproj = xcodeprojs.length > 0
     if (xcworkspace && hasXcodeproj) {
       this.hasXcode = true
-      vLog("Found Xcode project and workspace in static workspace...")
+      log.debug("Found Xcode project and workspace in static workspace...")
     } else if (hasXcodeproj) {
-      vLog("Found Xcode project in static workspace...")
+      log.info("Found Xcode project in static workspace...")
       await this.generateXcodeWorkspace(xcodeprojs)
     }
   }
 
   private async generateXcodeWorkspace(xcodeprojs: XcodeProject[]) {
-    vLog("Generating Xcode workspace...")
+    log.debug("Generating Xcode workspace...")
     const { name } = xcodeprojs[0] // takes workspace name from first project
     await XcodeWorkspace.generate(this.path, name, xcodeprojs)
     this.hasXcode = true

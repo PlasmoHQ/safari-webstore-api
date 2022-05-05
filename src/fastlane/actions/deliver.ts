@@ -1,8 +1,8 @@
 
 import { Action, ActionOptions } from "~fastlane/common/action"
-import { getVerboseLogger } from "~util/logging"
+import { getLogger } from "~util/logging"
 
-const vLog = getVerboseLogger()
+const log = getLogger()
 
 export type DeliverOptions = {
   ipa?: string,
@@ -19,7 +19,7 @@ export class DeliverAction extends Action {
 
   async upload() {
     const { ipa, pkg } = this.options
-    vLog("Executing Deliver to upload to iTunes Connect...")
+    log.info("Executing Fastlane Deliver to upload binaries to App Store Connect...")
     await super.run([], { 
       force: true, 
       automatic_release: false,
@@ -28,5 +28,6 @@ export class DeliverAction extends Action {
       ipa,
       pkg
     })
+    log.success("Delivered app to App Store Connect")
   }
 }

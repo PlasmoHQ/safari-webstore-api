@@ -5,7 +5,7 @@ import { GymAction, GymOptions, GymOutput } from "~fastlane/actions/gym"
 import { PilotAction, PilotOptions } from "~fastlane/actions/pilot"
 import { DeliverAction, DeliverOptions } from "~fastlane/actions/deliver"
 import { UpdateProjectTeamAction } from "~fastlane/actions/updateProjectTeam"
-import { getVerboseLogger } from "~util/logging"
+import { getLogger } from "~util/logging"
 import { FastlaneAPIKey, APIKey } from "~fastlane/config/auth"
 import { FastlaneAppfile, Appfile } from "~fastlane/config/appfile"
 import { FastlaneMatchfile, Matchfile } from "~fastlane/config/matchfile"
@@ -13,7 +13,7 @@ import { FastlaneGymfile, Gymfile } from "~fastlane/config/gymfile"
 import type { Options } from "~/index"
 import { XcodeProject, XcodeWorkspace } from "~xcode"
 
-const vLog = getVerboseLogger()
+const log = getLogger()
 
 export type FastlaneOptions = {
   workspace: string,
@@ -35,7 +35,7 @@ export class FastlaneClient {
   // generate hardcoded Fastlane files
   // auth with developer portal and itunes connect
   async configure() {
-    vLog("Configuring Fastlane...")
+    log.info("Configuring Fastlane...")
     const { workspace } = this.options
     
     const appfile = new FastlaneAppfile(this.options.appfile)
@@ -53,16 +53,16 @@ export class FastlaneClient {
     const gymfile = new FastlaneGymfile(this.options.gymfile)
     await gymfile.persist(workspace)
 
-    vLog("Fastlane successfully configured")
+    log.success("Fastlane configuration generated")
   }
 
   // generate Xcode project and workspace from extension folder
   async convert(extensionPath: string, options?: ConvertWebExtensionOptions) {
     const cwd = this.options.workspace
-    vLog("Converting extension...")
+    log.info("Converting extension...")
     const cwe = new ConvertWebExtensionAction(options, { cwd })
     await cwe.convert(extensionPath)
-    vLog("Xcode project successfully generated")
+    log.success("Conversion complete, and Xcode project generated")
     const xcodeprojs = await XcodeProject.findProjects(cwd)
     const xcodeproj = xcodeprojs[0]
     await XcodeWorkspace.generate(cwd, xcodeproj.name, xcodeprojs)
@@ -71,7 +71,7 @@ export class FastlaneClient {
   async updateProjectTeam(teamid: string) {
     const cwd = this.options.workspace
     const xcodeprojs = await XcodeProject.findProjects(cwd)
-    vLog("Updating project teams...")
+    log.debug("Updating project teams...")
     for (const xcodeproj of xcodeprojs) {
       const { filePath } = xcodeproj
       const updateTeam = new UpdateProjectTeamAction({ teamid, path: filePath }, { cwd })
@@ -87,7 +87,7 @@ export class FastlaneClient {
     const actionOptions = { cwd: this.options.workspace }
     const type = "appstore"
     for (const platform of this.options.platforms) {
-      vLog(`Gathering ${platform} codesigning materials for ${type}...`)
+      log.debug(`Gathering ${platform} codesigning materials for ${type}...`)
       const matchOptions = { type, platform, readonly: true } as MatchOptions
       const match = new MatchAction(matchOptions, actionOptions)
       await match.syncCodeSigning()

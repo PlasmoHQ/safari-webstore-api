@@ -4,10 +4,10 @@ import {
   SpawnOptionsWithoutStdio
 } from "child_process"
 import type { Readable } from "stream"
-import { getVerboseLogger, LogStream } from "~/util/logging"
+import { getLogger, LogStream } from "~/util/logging"
 import { readStreamSync } from "~/util/stream"
 
-const vLog = getVerboseLogger()
+const log = getLogger()
 
 declare class Error {
   public message: string
@@ -41,7 +41,7 @@ export const spawn = async (command: string, args: Array<string>, options?: Spaw
 
 const _spawn = (command, args, options): Promise<Readable> => {
   return new Promise<Readable>((resolve, reject) => {
-    vLog(`Spawning child_process "${command} ${args.join(" ")} with options ${JSON.stringify(options)}"...`)
+    log.debug(`Spawning child_process "${command} ${args.join(" ")} with options ${JSON.stringify(options)}"...`)
     const process = spawnStream(command, args, options)
     const stdout = process.stdout.pipe(new LogStream())
     const stderr = process.stderr.pipe(new LogStream(true))

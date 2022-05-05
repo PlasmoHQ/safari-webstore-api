@@ -1,8 +1,8 @@
 
 import { Action, ActionOptions } from "~fastlane/common/action"
-import { getVerboseLogger } from "~util/logging"
+import { getLogger } from "~util/logging"
 
-const vLog = getVerboseLogger()
+const log = getLogger()
 
 export type UpdateProjectTeamOptions = {
   path: string,

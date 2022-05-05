@@ -1,8 +1,8 @@
 
 import { Action, ActionOptions } from "~fastlane/common/action"
-import { getVerboseLogger } from "~util/logging"
+import { getLogger } from "~util/logging"
 
-const vLog = getVerboseLogger()
+const log = getLogger()
 
 export type GymOptions = {
   schemes: string[]
@@ -23,12 +23,12 @@ export class GymAction extends Action {
   }
 
   async buildSchemes(): Promise<GymOutput> {
-    vLog("Executing Gym to build schemes...")
+    log.info("Executing Fastlane Gym to build schemes...")
     const { schemes, output_name } = this.options
     let output = {} as GymOutput
     for (const scheme of schemes) {
       const platform = scheme.endsWith("(macOS)") ? "macos" : "ios"
-      vLog(`Building ${scheme} for platform ${platform}...`)
+      log.debug(`Building ${scheme} for platform ${platform}...`)
       const export_options = `./ExportOptions.${platform}.plist`
       const output_directory = "./build"
       if (platform === 'ios') output.ipa = `${output_directory}/${output_name}.ipa`
@@ -39,6 +39,7 @@ export class GymAction extends Action {
         output_directory,
         output_name
       })
+      log.success(`Built and archived ${platform} app`)
     }
     return output
   }

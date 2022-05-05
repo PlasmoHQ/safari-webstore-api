@@ -1,10 +1,10 @@
 
 import plist from "plist"
 import fs from "fs-extra"
-import { getVerboseLogger } from "~util/logging"
+import { getLogger } from "~util/logging"
 import type { Platform, ProvisioningProfile } from "~/index"
 
-const vLog = getVerboseLogger()
+const log = getLogger()
 
 export type ExportOptions = {
   provisioningProfiles: {
@@ -42,12 +42,12 @@ export class ExportOptionsPlist {
   }
 
   async persist(dir: string) {
-    vLog(`Generating ExportOptions plist and writing to file...`)
+    log.debug(`Generating ExportOptions plist and writing to file...`)
     const fileName = `ExportOptions.${this.platform}.plist`
     const filePath = `${dir}/${fileName}`
     const plistString = plist.build(this.options)
     await fs.writeFile(filePath, plistString)
-    vLog(`${fileName} generated at: ${filePath}`)
+    log.debug(`${fileName} generated at: ${filePath}`)
   }
 
   static matchDefaults(bundleId: string, extensionBundleId: string, platform: Platform) {

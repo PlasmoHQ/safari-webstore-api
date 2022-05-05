@@ -1,5 +1,5 @@
 
-import { enableVerboseLogging, getVerboseLogger } from "~util/logging"
+import { enableVerboseLogging, getLogger } from "~util/logging"
 import { FastlaneClient } from "~fastlane/"
 import Workspace from "~workspace/"
 import type { APIKey } from "~fastlane/config/auth"
@@ -10,7 +10,7 @@ import { XcodeWorkspace } from "~xcode/"
 import type { ConvertWebExtensionOptions } from "~fastlane/actions/convert"
 import { ExportOptionsPlist } from "~xcode/config/exportOptions"
 
-const vLog = getVerboseLogger()
+const log = getLogger()
 
 export type IdentityOptions = {
   appleId?: string,
@@ -118,6 +118,8 @@ export class SafariAppStoreClient {
 
   async submit(options: SubmitOptions) {
 
+    log.success("Safari extension conversion and submission has begun")
+
     // Validate workspace
     const workspace = new Workspace(this.options.workspace)
     await workspace.assemble(options.filePath)
@@ -134,7 +136,7 @@ export class SafariAppStoreClient {
     await fastlane.configure()
 
     // safari-web-extension-converter
-    if (workspace.hasXcode) vLog("Skipping conversion because Xcode workspace already exists")
+    if (workspace.hasXcode) log.info("Skipping conversion because Xcode workspace already exists")
     else await fastlane.convert(workspace.extension, convertMap(this.options))
     
     // Fastlane Update Project Team
@@ -161,6 +163,8 @@ export class SafariAppStoreClient {
     // Fastlane Deliver
     await fastlane.deliver({ ipa })
     await fastlane.deliver({ pkg })
+
+    log.success("Successfully published Safari Extension to App Store Connect. Please visit App Store Connect to verify the upload, complete the submission, and submit for review.")
   }
 }
 

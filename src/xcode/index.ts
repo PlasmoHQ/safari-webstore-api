@@ -1,5 +1,5 @@
 
-import { getVerboseLogger } from "~util/logging"
+import { getLogger } from "~util/logging"
 import { findFileByExtName, filterFilesByExtName } from '~util/file'
 import fs from 'fs-extra'
 import xml from 'xml'
@@ -7,7 +7,7 @@ import path from 'path'
 import XcodeBuild from '~xcode/xcrun/xcodebuild'
 import plist from 'plist'
 
-const vLog = getVerboseLogger()
+const log = getLogger()
 
 export class XcodeWorkspace {
   filePath: string
@@ -45,7 +45,7 @@ export class XcodeWorkspace {
   }
 
   async schemes(): Promise<string[]> {
-    vLog("Fetching Xcode Workspace schemes...")
+    log.debug("Fetching Xcode Workspace schemes...")
     const workspace = await this.workspace()
     return workspace.schemes.slice(0, 2)
   }
@@ -60,15 +60,15 @@ export class XcodeWorkspace {
   }
 
   async writeKeyToInfoPlists(key: string, value: any) {
-    vLog(`Writing ${key}:${value} to info plists...`)
+    log.debug(`Writing ${key}:${value} to info plists...`)
     const plists = await this.findInfoPlists()
     for (const plistPath of plists) {
-      vLog(`Reading ${plistPath}`)
+      log.debug(`Reading ${plistPath}`)
       const xmlString = await fs.readFileSync(plistPath, 'utf8')
       const json = plist.parse(xmlString)
       json[key] = value
       const jsonString = plist.build(json)
-      vLog(`Writing ${key}:${value} to ${plistPath}`)
+      log.debug(`Writing ${key}:${value} to ${plistPath}`)
       await fs.writeFileSync(plistPath, jsonString, 'utf8')
     }
   }
@@ -92,13 +92,13 @@ export class XcodeProject extends XcodeWorkspace {
   }
   
   async schemes(): Promise<string[]> {
-    vLog("Fetching Xcode Project schemes...")
+    log.debug("Fetching Xcode Project schemes...")
     const project = await this.project()
     return project.schemes
   }
   
   async targets(): Promise<string[]> {
-    vLog("Fetching Xcode Project targets...")
+    log.debug("Fetching Xcode Project targets...")
     const project = await this.project()
     return project.targets
   }

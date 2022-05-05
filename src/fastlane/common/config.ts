@@ -1,8 +1,8 @@
 
 import fs from "fs-extra"
-import { getVerboseLogger } from "~util/logging"
+import { getLogger } from "~util/logging"
 
-const vLog = getVerboseLogger()
+const log = getLogger()
 
 export type ConfigFileOptions = {
   name: string
@@ -33,10 +33,10 @@ export abstract class ConfigFile {
 
   private async writeFile(path: string, content: string): Promise<string> {
     const { name } = this.options
-    vLog(`Generating ${name} and writing to file...`)
+    log.debug(`Generating ${name} and writing to file...`)
     const filePath = `${path}/${name}`
     await fs.writeFile(filePath, content)
-    vLog(`${name} generated at: ${filePath}`)
+    log.debug(`${name} generated at: ${filePath}`)
     return filePath
   }
 }

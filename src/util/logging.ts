@@ -1,27 +1,21 @@
 
-import { Transform, PassThrough, TransformCallback } from "stream"
-
-let VERBOSE = false
+import consola from 'consola'
+import { Transform, TransformCallback } from "stream"
 
 export const enableVerboseLogging = () => {
-  VERBOSE = true
+  consola.level = Infinity
 }
 
-export const getVerboseLogger = (error?: boolean) => {
-  return (...args: any[]) => {
-    if (VERBOSE) {
-      if (error) console.error(...args)
-      else console.log(...args)
-    }
-  }
+export const getLogger = () => {
+  return consola
 }
 
 export class LogStream extends Transform {
-  private log: (string) => void
+  private log
 
   constructor(error?: boolean) {
     super()
-    this.log = getVerboseLogger(error)
+    this.log = getLogger().debug
   }
 
   _transform(chunk: any, encoding: BufferEncoding, callback: TransformCallback): void {

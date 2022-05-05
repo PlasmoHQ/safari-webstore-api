@@ -1,5 +1,8 @@
 
 import { Action, ActionOptions } from "~fastlane/common/action"
+import { getLogger } from "~util/logging"
+
+const log = getLogger()
 
 export type ConvertWebExtensionOptions = {
   project_location?: string
@@ -24,9 +27,13 @@ export class ConvertWebExtensionAction extends Action {
   
   // needs absolute path
   async convert(extension: string) {
-    await super.run([], {
+    const output = await super.run([], {
       extension,
       ...this.options
     })
+    const result = output.split('Result: ')[1]
+    const json = result.replace(/=>/g, ':')
+    const { warnings } = JSON.parse(json)
+    for (const warning of warnings) log.warn(warning)
   }
 }
