@@ -26,6 +26,10 @@ export class MatchAction extends Action {
   async syncCodeSigning() {
     const { type, platform } = this.options
     log.debug(`Syncing ${type} ${platform} certs with match...`)
-    return await super.run([ type ], this.options)
+    return await super.run([ type ], {
+      ...this.options,
+      keychain_name: "fastlane_tmp_keychain",
+      keychain_password: ""
+    })
   }
 }
