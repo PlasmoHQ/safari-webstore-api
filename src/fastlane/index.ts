@@ -5,6 +5,7 @@ import { GymAction, GymOptions, GymOutput } from "~fastlane/actions/gym"
 import { PilotAction, PilotOptions } from "~fastlane/actions/pilot"
 import { DeliverAction, DeliverOptions } from "~fastlane/actions/deliver"
 import { UpdateProjectTeamAction } from "~fastlane/actions/updateProjectTeam"
+import { SetupCIAction } from "~fastlane/actions/setupCI"
 import { getLogger } from "~util/logging"
 import { FastlaneAPIKey, APIKey } from "~fastlane/config/auth"
 import { FastlaneAppfile, Appfile } from "~fastlane/config/appfile"
@@ -54,6 +55,12 @@ export class FastlaneClient {
     await gymfile.persist(workspace)
 
     log.success("Fastlane configuration generated")
+  }
+
+  async setupCI() {
+    const cwd = this.options.workspace
+    const setupCI = new SetupCIAction({ force: true }, { cwd })
+    await setupCI.setup()
   }
 
   // generate Xcode project and workspace from extension folder

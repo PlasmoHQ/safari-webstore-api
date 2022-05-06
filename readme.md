@@ -26,6 +26,7 @@ Feature includes:
 - FASTLANE_PASSWORD (Apple ID password)
 - FASTLANE_ITC_TEAM_NAME (team name)
 - FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD
+- MATCH_PASSWORD
 
 ## Fastlane GitHub Action Workflow
 ```yaml

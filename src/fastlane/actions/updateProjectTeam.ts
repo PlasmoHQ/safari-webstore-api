@@ -18,6 +18,7 @@ export class UpdateProjectTeamAction extends Action {
   }
 
   async update() {
+    log.debug("Updating project team")
     const { path, teamid } = this.options
     return await super.run([ path, teamid ], this.options)
   }
