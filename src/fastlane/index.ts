@@ -95,7 +95,8 @@ export class FastlaneClient {
     const type = "appstore"
     for (const platform of this.options.platforms) {
       log.debug(`Gathering ${platform} codesigning materials for ${type}...`)
-      const matchOptions = { type, platform, readonly: true } as MatchOptions
+      const keychain_name = "fastlane_tmp_keychain"
+      const matchOptions = { type, platform, readonly: true, keychain_name } as MatchOptions
       const match = new MatchAction(matchOptions, actionOptions)
       await match.syncCodeSigning()
     }

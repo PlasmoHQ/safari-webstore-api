@@ -18,7 +18,9 @@ export type Matchfile = {
   s3_region: string,
   s3_access_key: string,
   s3_secret_access_key: string,
-  s3_bucket: string
+  s3_bucket: string,
+  keychain_name?: string,
+  keychain_password?: string
 }
 
 export class FastlaneMatchfile extends ConfigFile {
