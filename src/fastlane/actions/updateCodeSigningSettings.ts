@@ -22,7 +22,8 @@ export class UpdateCodeSigningSettingsAction extends Action {
     log.debug("Updating code signing settings and disabling automatic code signing...")
     return await super.run([], {
       ...this.options,
-      use_automatic_signing: false
+      use_automatic_signing: false,
+      code_sign_identity: "iPhone Distribution"
     })
   }
 }
