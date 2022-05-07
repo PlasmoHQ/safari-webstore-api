@@ -13,6 +13,10 @@ import { FastlaneMatchfile, Matchfile } from "~fastlane/config/matchfile"
 import { FastlaneGymfile, Gymfile } from "~fastlane/config/gymfile"
 import type { Options } from "~/index"
 import { XcodeProject, XcodeWorkspace } from "~xcode"
+import { UpdateCodeSigningSettingsAction } from "./actions/updateCodeSigningSettings"
+import type { Platform } from "~xcode/common/platform"
+import { ProvisioningProfile } from "~xcode/common/provisioningProfile"
+import type { Target } from "~xcode/common/target"
 
 const log = getLogger()
 
@@ -22,7 +26,7 @@ export type FastlaneOptions = {
   appfile: Appfile,
   matchfile: Matchfile,
   gymfile: Gymfile,
-  platforms: string[]
+  platforms: Platform[]
 }
 
 export class FastlaneClient {
@@ -71,8 +75,39 @@ export class FastlaneClient {
     await cwe.convert(extensionPath)
     log.success("Conversion complete, and Xcode project generated")
     const xcodeprojs = await XcodeProject.findProjects(cwd)
-    const xcodeproj = xcodeprojs[0]
+    const xcodeproj = await XcodeProject.findPrimaryProject(cwd)
     await XcodeWorkspace.generate(cwd, xcodeproj.name, xcodeprojs)
+  }
+
+  async updateCodeSigningSettings(options: {
+    bundleId: string, extensionBundleId: string
+  }) {
+    log.info("Updating code signing settings...")
+    const cwd = this.options.workspace
+    const xcodeprojs = await XcodeProject.findProjects(cwd)
+    for (const xcodeproj of xcodeprojs) {
+      await this.updateCodeSigningSettingsForProject(xcodeproj, options)
+    }
+  }
+
+  private async updateCodeSigningSettingsForProject(xcodeproj: XcodeProject, options) {
+    const { filePath } = xcodeproj
+    log.debug(`Updating code signing settings for project at ${filePath}`)
+    const targets = await xcodeproj.targets()
+    for (const target of targets) {
+      await this.updateCodeSigningSettingsForTarget(filePath, target, options)
+    }
+  }
+
+  private async updateCodeSigningSettingsForTarget(path: string, target: Target, options) {
+    const cwd = this.options.workspace
+    const bundleId = target.extension ? options.extensionBundleId : options.bundleId
+    log.debug(`Updating code signing settings for target ${target.name} for ${target.platform}`)
+    const profile = new ProvisioningProfile({ platform: target.platform, bundleId })
+    const updateCodeSigning = new UpdateCodeSigningSettingsAction({ 
+      path, targets: [target.name], profile_name: profile.name 
+    }, { cwd })
+    await updateCodeSigning.update()
   }
 
   async updateProjectTeam(teamid: string) {

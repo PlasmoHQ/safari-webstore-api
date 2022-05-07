@@ -9,6 +9,8 @@ import type { Gymfile } from "~fastlane/config/gymfile"
 import { XcodeWorkspace } from "~xcode/"
 import type { ConvertWebExtensionOptions } from "~fastlane/actions/convert"
 import { ExportOptionsPlist } from "~xcode/config/exportOptions"
+import type { Platform } from "~xcode/common/platform"
+import type { ProvisioningProfileOptions } from "~xcode/common/provisioningProfile"
 
 const log = getLogger()
 
@@ -29,8 +31,6 @@ export type KeyOptions = {
   duration?: number
 }
 
-export type Platform = "ios" | "macos"
-
 export type AppOptions = {
   bundleId: string,
   extensionBundleId?: string,
@@ -39,23 +39,8 @@ export type AppOptions = {
   platforms?: Platform[]
 }
 
-export type ProvisioningProfileType = 
-  "appstore" | 
-  "adhoc" | 
-  "development" |
-  "enterprise" |
-  "developer_id" |
-  "mac_installer_distribution"
-
-export type ProvisioningProfile = {
-  bundleId: string,
-  name: string,
-  type: ProvisioningProfileType,
-  platform: Platform
-}
-
 export type CodeSigningOptions = {
-  provisioningProfiles?: ProvisioningProfile[]
+  provisioningProfiles?: ProvisioningProfileOptions[]
 }
 
 export type MatchOptions = {
@@ -113,16 +98,26 @@ export class SafariAppStoreClient {
     
     if (options.verbose) enableVerboseLogging()
 
-    this.options = options
+    this.options = {
+      ...options,
+      platforms: options.platforms || defaults.platforms,
+      extensionBundleId: options.extensionBundleId || `${options.bundleId}.extension`
+    }
   }
 
   async submit(options: SubmitOptions) {
+    const { bundleId, platforms, extensionBundleId } = this.options
 
     log.success("Safari extension conversion and submission has begun")
 
     // Validate workspace
     const workspace = new Workspace(this.options.workspace)
     await workspace.assemble(options.filePath)
+
+    // Xcode build options
+    await ExportOptionsPlist.generate(workspace.path, {
+      bundleId, extensionBundleId, platforms
+    })
 
     // Fastlane
     const fastlane = new FastlaneClient({
@@ -141,26 +136,24 @@ export class SafariAppStoreClient {
     // safari-web-extension-converter
     if (workspace.hasXcode) log.info("Skipping conversion because Xcode workspace already exists")
     else await fastlane.convert(workspace.extension, convertMap(this.options))
-    
+
+    // Reference Xcode Workspace
+    const xcodeWorkspace = await XcodeWorkspace.findWorkspace(workspace.path)
+    const schemes = await xcodeWorkspace.schemes()
+
+    // Add App Category
+    await xcodeWorkspace.writeKeyToInfoPlists('LSApplicationCategoryType', `public.app-category.${this.options.appCategory}`)
+
     // Fastlane Update Project Team
     await fastlane.updateProjectTeam(this.options.teamId)
     
-    // Xcode build options
-    await ExportOptionsPlist.generate(workspace.path, {
-      bundleId: this.options.bundleId,
-      extensionBundleId: extensionBundleId(this.options),
-      platforms: this.options.platforms || defaults.platforms,
-    })
-
-    // Add App Category
-    const xcodeWorkspace = await XcodeWorkspace.findWorkspace(workspace.path)
-    await xcodeWorkspace.writeKeyToInfoPlists('LSApplicationCategoryType', `public.app-category.${this.options.appCategory}`)
+    // Fastlane Update Code Signing Settings
+    await fastlane.updateCodeSigningSettings({ bundleId, extensionBundleId })
 
     // Fastlane Match
     await fastlane.match()
 
     // Fastlane Gym
-    const schemes = await xcodeWorkspace.schemes()
     const { ipa, pkg } = await fastlane.gym({ schemes, output_name: this.options.appName })
     
     // Fastlane Deliver
@@ -186,7 +179,7 @@ const appfileMap = (ops: Options): Appfile => {
 
 const matchfileMap = (ops: Options): Matchfile => {
   return {
-    app_identifier: [ops.bundleId, extensionBundleId(ops)],
+    app_identifier: [ops.bundleId, ops.extensionBundleId],
     storage_mode: ops.matchStorageMode,
     git_url: ops.matchGitUrl,
     git_branch: ops.matchGitBranch,
@@ -201,11 +194,6 @@ const matchfileMap = (ops: Options): Matchfile => {
     s3_secret_access_key: ops.matchS3SecretAccessKey,
     s3_bucket: ops.matchS3Bucket
   }
-}
-
-const extensionBundleId = (ops: Options): string => {
-  const extensionBundleId = `${ops.bundleId}.extension`
-  return ops.extensionBundleId || extensionBundleId
 }
 
 const gymfileMap = (ops: Options): Gymfile => {
