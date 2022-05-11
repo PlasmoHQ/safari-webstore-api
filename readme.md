@@ -12,7 +12,7 @@ Feature includes:
 ## nodejs API
 
 ```ts
-import { SafariWebstoreClient } from "@PlasmoHQ/swu"
+import { SafariWebstoreClient } from "@plasmo-corp/swu"
 
 const client = new SafariWebstoreClient({
 
