@@ -25,7 +25,7 @@ export abstract class ConfigFile {
   async writeRuby(params: {}, path: string): Promise<string> {
     const content = Object.entries(params).reduce((acc, entry) => {
       const [key, value] = entry
-      if (key && value !== null) acc.push(rubyGenerator(key, value))
+      if (key && value != null) acc.push(rubyGenerator(key, value))
       return acc
     }, []).join("\n")
     return await this.writeFile(path, content)
