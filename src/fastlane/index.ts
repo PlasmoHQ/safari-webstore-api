@@ -2,7 +2,6 @@
 import { ConvertWebExtensionAction, ConvertWebExtensionOptions } from "~fastlane/actions/convert"
 import { MatchAction, MatchOptions } from "~fastlane/actions/match"
 import { GymAction, GymOptions, GymOutput } from "~fastlane/actions/gym"
-import { PilotAction, PilotOptions } from "~fastlane/actions/pilot"
 import { DeliverAction, DeliverOptions } from "~fastlane/actions/deliver"
 import { UpdateProjectTeamAction } from "~fastlane/actions/updateProjectTeam"
 import { SetupCIAction } from "~fastlane/actions/setupCI"
@@ -144,11 +143,6 @@ export class FastlaneClient {
     const actionOptions = { cwd: this.options.workspace }
     const gym = new GymAction(options, actionOptions)
     return await gym.buildSchemes()
-  }
-
-  // upload and deploy to testflight
-  async pilot(options?: PilotOptions) {
-    const pilot = new PilotAction(options)
   }
 
   // upload and submit to the app store
