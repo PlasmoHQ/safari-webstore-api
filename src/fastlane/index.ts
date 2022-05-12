@@ -27,7 +27,6 @@ export type FastlaneOptions = {
   appfile: Appfile,
   matchfile: Matchfile,
   gymfile: Gymfile,
-  deliverfile: Deliverfile,
   platforms: Platform[]
 }
 
@@ -62,8 +61,7 @@ export class FastlaneClient {
 
     const deliverfile = new FastlaneDeliverfile({
       api_key_path: this.apiKeyPath,
-      precheck_include_in_app_purchases: false, // api_key not compatible with IAP
-      ...this.options.deliverfile
+      precheck_include_in_app_purchases: false // api_key not compatible with IAP
     })
     await deliverfile.persist(workspace)
 
