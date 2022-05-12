@@ -122,10 +122,6 @@ export class FastlaneClient {
   }
 
   async match(options?: Options) {
-    await this.codeSigningSetup()
-  }
-
-  private async codeSigningSetup() {
     const actionOptions = { cwd: this.options.workspace }
     const type = "appstore"
     for (const platform of this.options.platforms) {
