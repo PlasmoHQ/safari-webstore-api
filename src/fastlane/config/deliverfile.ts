@@ -4,6 +4,7 @@ import { ConfigFile } from "~fastlane/common/config"
 // https://docs.fastlane.tools/actions/deliver/#available-options
 export type Deliverfile = {
   api_key_path?: string
+  precheck_include_in_app_purchases?: boolean
 }
 
 export class FastlaneDeliverfile extends ConfigFile {
