@@ -23,6 +23,7 @@ export class DeliverAction extends Action {
     await super.run([], { 
       force: true, 
       automatic_release: false,
+      submit_for_review: false,
       skip_screenshots: true,
       skip_metadata: true,
       ipa,
