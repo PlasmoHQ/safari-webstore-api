@@ -11,6 +11,7 @@ import { FastlaneAPIKey, APIKey } from "~fastlane/config/auth"
 import { FastlaneAppfile, Appfile } from "~fastlane/config/appfile"
 import { FastlaneMatchfile, Matchfile } from "~fastlane/config/matchfile"
 import { FastlaneGymfile, Gymfile } from "~fastlane/config/gymfile"
+import { FastlaneDeliverfile, Deliverfile } from "~fastlane/config/deliverfile"
 import type { Options } from "~/index"
 import { XcodeProject, XcodeWorkspace } from "~xcode"
 import { UpdateCodeSigningSettingsAction } from "./actions/updateCodeSigningSettings"
@@ -26,6 +27,7 @@ export type FastlaneOptions = {
   appfile: Appfile,
   matchfile: Matchfile,
   gymfile: Gymfile,
+  deliverfile: Deliverfile,
   platforms: Platform[]
 }
 
@@ -57,6 +59,12 @@ export class FastlaneClient {
 
     const gymfile = new FastlaneGymfile(this.options.gymfile)
     await gymfile.persist(workspace)
+
+    const deliverfile = new FastlaneDeliverfile({
+      api_key_path: this.apiKeyPath,
+      ...this.options.deliverfile
+    })
+    await deliverfile.persist(workspace)
 
     log.success("Fastlane configuration generated")
   }
