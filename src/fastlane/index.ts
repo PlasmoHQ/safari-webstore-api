@@ -17,6 +17,7 @@ import { UpdateCodeSigningSettingsAction } from "./actions/updateCodeSigningSett
 import type { Platform } from "~xcode/common/platform"
 import { ProvisioningProfile } from "~xcode/common/provisioningProfile"
 import type { Target } from "~xcode/common/target"
+import { IncrementBuildNumberAction } from "./actions/incrementBuildNumber"
 
 const log = getLogger()
 
@@ -138,6 +139,18 @@ export class FastlaneClient {
     }
   }
 
+  // increment or set build number
+  async incrementBuildNumber(buildNumber?: number) {
+    const cwd = this.options.workspace
+    const xcodeproj = await XcodeProject.findPrimaryProject(cwd)
+    const { filePath } = xcodeproj
+    log.debug("Updating build number...")
+    const incrementBuildNumber = new IncrementBuildNumberAction({ 
+      build_number: buildNumber, xcodeproj: filePath 
+    }, { cwd })
+    await incrementBuildNumber.increment()
+  }
+  
   // build and sign app
   async gym(options?: GymOptions): Promise<GymOutput> {
     const actionOptions = { cwd: this.options.workspace }

@@ -11,6 +11,7 @@ import type { ConvertWebExtensionOptions } from "~fastlane/actions/convert"
 import { ExportOptionsPlist } from "~xcode/config/exportOptions"
 import type { Platform } from "~xcode/common/platform"
 import type { ProvisioningProfileOptions } from "~xcode/common/provisioningProfile"
+import { GITHUB_RUN_NUMBER } from "~util/env"
 
 const log = getLogger()
 
@@ -36,7 +37,8 @@ export type AppOptions = {
   extensionBundleId?: string,
   appName: string,
   appCategory: string,
-  platforms?: Platform[]
+  platforms?: Platform[],
+  buildNumber?: number
 }
 
 export type CodeSigningOptions = {
@@ -152,6 +154,9 @@ export class SafariAppStoreClient {
 
     // Fastlane Match
     await fastlane.match()
+
+    // Fastlane Increment Build Number
+    await fastlane.incrementBuildNumber(this.options.buildNumber || GITHUB_RUN_NUMBER)
 
     // Fastlane Gym
     const { ipa, pkg } = await fastlane.gym({ schemes, output_name: this.options.appName })
