@@ -32,7 +32,8 @@ export class ConvertWebExtensionAction extends Action {
       ...this.options
     })
     const result = output.split('Result: ')[1]
-    const json = result.replace(/=>/g, ':')
+    const json = result.replace(/"warnings"=>nil/g, '=>[]') // bug fix for nil warnings
+                       .replace(/=>/g, ':')
     const { warnings } = JSON.parse(json)
     for (const warning of warnings) log.warn(warning)
   }
