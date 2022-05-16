@@ -112,7 +112,7 @@ export class SafariAppStoreClient {
 
     log.success("Safari extension conversion and submission has begun")
 
-    // Validate workspace
+    // Extract extension, Validate workspace, prepare Ruby environment
     const workspace = new Workspace(this.options.workspace)
     await workspace.assemble(options.filePath)
 
@@ -137,7 +137,7 @@ export class SafariAppStoreClient {
 
     // safari-web-extension-converter
     if (workspace.hasXcode) log.info("Skipping conversion because Xcode workspace already exists")
-    else await fastlane.convert(workspace.extension, convertMap(this.options))
+    else await fastlane.convert(workspace.extension.path, convertMap(this.options))
 
     // Reference Xcode Workspace
     const xcodeWorkspace = await XcodeWorkspace.findWorkspace(workspace.path)
