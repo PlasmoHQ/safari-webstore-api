@@ -1,6 +1,6 @@
 # Apple Safari Web Extension App Store Upload
 
-This module uses Apple's `safari-web-extension-converter` to convert an extension to a Safari Web Extension, and uploads the native wrapper bundle to the Apple App Store using Fastlane. Supports macOS and GitHub-hosted macOS runners.
+This module uses Apple's `safari-web-extension-converter` to convert an extension to a Safari Web Extension, and uploads the native wrapper bundle to the Apple App Store using Fastlane. Deploys to both iOS and macOS platforms. Converter supports both macOS and GitHub-hosted macOS runners.
 
 Feature includes:
 - TypeScript API, with type exports
@@ -21,12 +21,6 @@ Feature includes:
 ## After App Store delivery
 - Create App Store page metadata
 - Manually submit the App for Review
-
-## ENV variables that may be helpful
-- FASTLANE_PASSWORD (Apple ID password)
-- FASTLANE_ITC_TEAM_NAME (team name)
-- FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD
-- MATCH_PASSWORD
 
 ## Fastlane GitHub Action Workflow
 ```yaml
