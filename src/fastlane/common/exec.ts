@@ -2,7 +2,8 @@
 import { spawn } from "~util/process"
 
 export type ExecOptions = {
-  cwd?: string
+  cwd?: string,
+  env?: { [key: string]: string }
 }
 
 export class FastlaneExec {

@@ -128,8 +128,11 @@ export class FastlaneClient {
     }
   }
 
-  async match(options?: Options) {
-    const actionOptions = { cwd: this.options.workspace }
+  async match(password: string) {
+    const actionOptions = { 
+      cwd: this.options.workspace,
+      env: { MATCH_PASSWORD: password }
+    }
     const type = "appstore"
     for (const platform of this.options.platforms) {
       log.debug(`Gathering ${platform} codesigning materials for ${type}...`)

@@ -46,19 +46,20 @@ export type CodeSigningOptions = {
 }
 
 export type MatchOptions = {
-  matchStorageMode: string,
-  matchGitUrl: string,
-  matchGitBranch: string,
-  matchGitBasicAuthorization: string,
-  matchGitBearerAuthorization: string,
-  matchGitPrivateKey: string,
-  matchGoogleCloudBucketName: string,
-  matchGoogleCloudKeysFile: string,
-  matchGoogleCloudProjectId: string,
-  matchS3Region: string,
-  matchS3AccessKey: string,
-  matchS3SecretAccessKey: string,
-  matchS3Bucket: string
+  matchPassword: string,
+  matchStorageMode?: string,
+  matchGitUrl?: string,
+  matchGitBranch?: string,
+  matchGitBasicAuthorization?: string,
+  matchGitBearerAuthorization?: string,
+  matchGitPrivateKey?: string,
+  matchGoogleCloudBucketName?: string,
+  matchGoogleCloudKeysFile?: string,
+  matchGoogleCloudProjectId?: string,
+  matchS3Region?: string,
+  matchS3AccessKey?: string,
+  matchS3SecretAccessKey?: string,
+  matchS3Bucket?: string
 }
 
 export type ClientOptions = {
@@ -108,7 +109,7 @@ export class SafariAppStoreClient {
   }
 
   async submit(options: SubmitOptions) {
-    const { bundleId, platforms, extensionBundleId } = this.options
+    const { bundleId, platforms, extensionBundleId, matchPassword } = this.options
 
     log.success("Safari extension conversion and submission has begun")
 
@@ -153,7 +154,7 @@ export class SafariAppStoreClient {
     await fastlane.updateCodeSigningSettings({ bundleId, extensionBundleId })
 
     // Fastlane Match
-    await fastlane.match()
+    await fastlane.match(matchPassword)
 
     // Fastlane Increment Build Number
     await fastlane.incrementBuildNumber(this.options.buildNumber || GITHUB_RUN_NUMBER)
