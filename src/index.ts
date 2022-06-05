@@ -76,7 +76,12 @@ export type Options =
             ClientOptions
 
 export const errorMap = {
-
+  "bundleId": "requires an app bundle identifier https://cocoacasts.com/what-are-app-ids-and-bundle-identifiers/",
+  "appName": "requires an app name",
+  "appCategory": "requires the last component of a LSApplicationCategoryType https://developer.apple.com/documentation/bundleresources/information_property_list/lsapplicationcategorytype",
+  "keyId": "requires a key id",
+  "key": "requires a key",
+  "issuerId": "requires an issuer id"
 }
 
 export const requiredFields = Object.keys(errorMap) as Array<
