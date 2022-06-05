@@ -95,7 +95,7 @@ type SubmitOptions = {
   filePath: string
 }
 
-export class SafariAppStoreClient {
+export class SafariPublisher {
   options = {} as Options
 
   constructor(options: Options) {
