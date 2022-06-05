@@ -121,9 +121,9 @@ jobs:
 ## Node.js API
 
 ```ts
-import { SafariWebstoreClient } from "@plasmo-corp/swu"
+import { SafariPublisher } from "@PlasmoHQ/safari-publisher"
 
-const client = new SafariWebstoreClient({
+const client = new SafariPublisher({
   "bundleId": "com.plasmo.mock",
   "appName": "Plasmo Mock",
   "appCategory": "developer-tools",
