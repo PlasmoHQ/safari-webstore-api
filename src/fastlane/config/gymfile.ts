@@ -1,5 +1,6 @@
 
 import { ConfigFile } from "~fastlane/common/config"
+import type { Options } from "~/"
 
 // https://docs.fastlane.tools/actions/gym/#gymfile
 export type Gymfile = {
@@ -17,5 +18,12 @@ export class FastlaneGymfile extends ConfigFile {
   
   async persist(path: string): Promise<string> {
     return await this.writeRuby(this.gymfile, `${path}/fastlane`)
+  }
+
+  static map(ops: Options): Gymfile {
+    return {
+      export_method: "app-store",
+      export_team_id: ops.teamId
+    }
   }
 }

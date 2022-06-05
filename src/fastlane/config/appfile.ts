@@ -1,5 +1,6 @@
 
 import { ConfigFile } from "~fastlane/common/config"
+import type { Options } from "~/"
 
 export type DeveloperPortal = {
   apple_id?: string
@@ -28,7 +29,21 @@ export class FastlaneAppfile extends ConfigFile {
     super({ name: 'Appfile' })
     this.appfile = appfile
   }
+
   async persist(path: string): Promise<string> {
     return await super.writeRuby(this.appfile, `${path}/fastlane`)
+  }
+
+  static map(ops: Options): Appfile {
+    return {
+      app_identifier: ops.bundleId,
+      apple_id: ops.appleId,
+      apple_dev_portal_id: ops.appleDevPortalId,
+      team_name: ops.teamName,
+      team_id: ops.teamId,
+      itunes_connect_id: ops.itunesConnectId,
+      itc_team_id: ops.itcTeamId,
+      itc_team_name: ops.itcTeamName
+    }
   }
 }

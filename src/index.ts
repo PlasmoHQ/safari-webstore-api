@@ -1,13 +1,12 @@
 
 import { enableVerboseLogging, getLogger } from "~util/logging"
-import { FastlaneClient } from "~fastlane/"
 import Workspace from "~workspace/"
-import type { APIKey } from "~fastlane/config/auth"
-import type { Appfile } from "~fastlane/config/appfile"
-import type { Matchfile } from "~fastlane/config/matchfile"
-import type { Gymfile } from "~fastlane/config/gymfile"
 import { XcodeWorkspace } from "~xcode/"
-import type { ConvertWebExtensionOptions } from "~fastlane/actions/convert"
+import { FastlaneClient } from "~fastlane/"
+import { FastlaneAPIKey } from "~fastlane/config/auth"
+import { FastlaneAppfile } from "~fastlane/config/appfile"
+import { FastlaneMatchfile } from "~fastlane/config/matchfile"
+import { FastlaneGymfile } from "~fastlane/config/gymfile"
 import { ExportOptionsPlist } from "~xcode/config/exportOptions"
 import type { Platform } from "~xcode/common/platform"
 import type { ProvisioningProfileOptions } from "~xcode/common/provisioningProfile"
@@ -130,10 +129,10 @@ export class SafariAppStoreClient {
     // Fastlane
     const fastlane = new FastlaneClient({
       workspace: workspace.path,
-      appfile: appfileMap(this.options),
-      matchfile: matchfileMap(this.options),
-      gymfile: gymfileMap(this.options),
-      key: keyMap(this.options),
+      appfile: FastlaneAppfile.map(this.options),
+      matchfile: FastlaneMatchfile.map(this.options),
+      gymfile: FastlaneGymfile.map(this.options),
+      key: FastlaneAPIKey.map(this.options),
       platforms: this.options.platforms
     })
     await fastlane.configure()
@@ -143,7 +142,12 @@ export class SafariAppStoreClient {
 
     // safari-web-extension-converter
     if (workspace.hasXcode) log.info("Skipping conversion because Xcode workspace already exists")
-    else await fastlane.convert(workspace.extension.path, convertMap(this.options))
+    else await fastlane.convert(workspace.extension.path, {
+      app_name: this.options.appName,
+      bundle_identifier: this.options.bundleId,
+      ios_only: this.options.platforms.length === 1 && this.options.platforms[0] === "ios",
+      mac_only: this.options.platforms.length === 1 && this.options.platforms[0] === "macos"
+    })
 
     // Reference Xcode Workspace
     const xcodeWorkspace = await XcodeWorkspace.findWorkspace(workspace.path)
@@ -172,63 +176,5 @@ export class SafariAppStoreClient {
     await fastlane.deliver({ pkg })
 
     log.success("Successfully published Safari Extension to App Store Connect. Please visit App Store Connect to verify the upload, complete the submission, and submit for review.")
-  }
-}
-
-const appfileMap = (ops: Options): Appfile => {
-  return {
-    app_identifier: ops.bundleId,
-    apple_id: ops.appleId,
-    apple_dev_portal_id: ops.appleDevPortalId,
-    team_name: ops.teamName,
-    team_id: ops.teamId,
-    itunes_connect_id: ops.itunesConnectId,
-    itc_team_id: ops.itcTeamId,
-    itc_team_name: ops.itcTeamName
-  }
-}
-
-const matchfileMap = (ops: Options): Matchfile => {
-  return {
-    app_identifier: [ops.bundleId, ops.extensionBundleId],
-    storage_mode: ops.matchStorageMode,
-    git_url: ops.matchGitUrl,
-    git_branch: ops.matchGitBranch,
-    git_basic_authorization: ops.matchGitBasicAuthorization,
-    git_bearer_authorization: ops.matchGitBearerAuthorization,
-    git_private_key: ops.matchGitPrivateKey,
-    google_cloud_bucket_name: ops.matchGoogleCloudBucketName,
-    google_cloud_keys_file: ops.matchGoogleCloudKeysFile,
-    google_cloud_project_id: ops.matchGoogleCloudProjectId,
-    s3_region: ops.matchS3Region,
-    s3_access_key: ops.matchS3AccessKey,
-    s3_secret_access_key: ops.matchS3SecretAccessKey,
-    s3_bucket: ops.matchS3Bucket
-  }
-}
-
-const gymfileMap = (ops: Options): Gymfile => {
-  return {
-    export_method: "app-store",
-    export_team_id: ops.teamId
-  }
-}
-
-const keyMap = (ops: KeyOptions): APIKey => {
-  return {
-    key_id: ops.keyId,
-    issuer_id: ops.issuerId,
-    key: ops.key,
-    in_house: false, // enterprise not yet supported
-    duration: ops.duration
-  }
-}
-
-const convertMap = (ops: AppOptions): ConvertWebExtensionOptions => {
-  return {
-    app_name: ops.appName,
-    bundle_identifier: ops.bundleId,
-    ios_only: ops.platforms.length === 1 && ops.platforms[0] === "ios",
-    mac_only: ops.platforms.length === 1 && ops.platforms[0] === "macos"
   }
 }
