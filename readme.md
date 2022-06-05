@@ -71,6 +71,70 @@ await client.submit({
 })
 ```
 
+# Options
+
+## App/Bundle Options
+| key | required | description |
+| ----------- | ----------- | ----------- |
+| bundleId | true | |
+| extensionBundleId | false | |
+| appName | true | |
+| appCategory | true | last component of [LSApplicationCategoryType](https://developer.apple.com/documentation/bundleresources/information_property_list/lsapplicationcategorytype) (i.e. business)|
+| platforms | false | defaults to iOS and macOS|
+| buildNumber | false | |
+
+## Code Signing Identity
+Read about [Fastlane Appfile](https://docs.fastlane.tools/advanced/Appfile/) options
+| key | required |
+| ----------- | ----------- |
+| appleId | false |
+| appleDevPortalId | false |
+| teamName | false |
+| teamId | false |
+| itunesConnectId | false |
+| itcTeamName | false |
+| itcTeamId | false |
+
+## Code Signing Options
+If you want to use custom provisioning profiles that weren't generated in the pattern of Fastlane Match provisioning profiles
+| key | required | description |
+| ----------- | ----------- | ----------- |
+| provisioningProfiles | false | array of [ProvisioningProfiles](https://github.com/DanielSinclair/safari-webstore-upload/blob/0681fa661b0386e93f40c7bc54344c76920a64b3/src/xcode/common/provisioningProfile.ts#L12) |
+
+## App Store Connect API Key
+Read about the [App Store Connect API](https://docs.fastlane.tools/app-store-connect-api/)
+| key | required |
+| ----------- | ----------- |
+| keyId | true |
+| appleDevPortalId | true |
+| issuerId | true |
+| duration | false |
+
+## Fastlane Match Options
+Read about [Fastlane Match](https://docs.fastlane.tools/actions/match/#match:~:text=alias%20for%20%22sync_code_signing%22-,Parameters,-Key) options
+| key | description |
+| ----------- | ----------- |
+| matchPassword | shared storage encryption password |
+| matchStorageMode | defaults to git |
+| matchGitUrl | for git |
+| matchGitBranch | for git |
+| matchGitBasicAuthorization | for git |
+| matchGitBearerAuthorization | for git |
+| matchGitPrivateKey | for git |
+| matchGoogleCloudBucketName | for Google Cloud |
+| matchGoogleCloudKeysFile | for Google Cloud |
+| matchGoogleCloudProjectId | for Google Cloud |
+| matchS3Region | for S3 |
+| matchS3AccessKey | for S3 |
+| matchS3SecretAccessKey | for S3 |
+| matchS3Bucket | for S3 |
+
+## Debugging Options
+| key | description |
+| ----------- | ----------- |
+| workspace | non-tmp static directory to generate workspace to (for debugging) |
+| verbose | toggle more detailed logs |
+
 # Future
 ### Adopt [XcodeGen](https://github.com/yonaskolb/XcodeGen) to simplify project generation and schema management
 We currently manually modify the generated Xcode project to suit our needs, which may be difficult to maintain:

@@ -75,12 +75,12 @@ export type Options =
             ClientOptions
 
 export const errorMap = {
-  "bundleId": "requires an app bundle identifier https://cocoacasts.com/what-are-app-ids-and-bundle-identifiers/",
+  "bundleId": "requires an app bundle identifier: https://cocoacasts.com/what-are-app-ids-and-bundle-identifiers/",
   "appName": "requires an app name",
-  "appCategory": "requires the last component of a LSApplicationCategoryType https://developer.apple.com/documentation/bundleresources/information_property_list/lsapplicationcategorytype",
-  "keyId": "requires a key id",
-  "key": "requires a key",
-  "issuerId": "requires an issuer id"
+  "appCategory": "requires the last component of a LSApplicationCategoryType: https://developer.apple.com/documentation/bundleresources/information_property_list/lsapplicationcategorytype",
+  "keyId": "requires an App Store Connect API Key id: https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api",
+  "key": "requires an App Store Connect API Key: https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api",
+  "issuerId": "requires an App Store Connect API Key issuer id: https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api"
 }
 
 export const requiredFields = Object.keys(errorMap) as Array<
