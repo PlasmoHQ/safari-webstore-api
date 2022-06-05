@@ -1,12 +1,16 @@
-# Apple Safari Web Extension App Store Upload
+# Safari Web Extension Publisher
 
-This module uses Apple's `safari-web-extension-converter` to convert a Web Extension to a Safari Web Extension, and uploads the native bundle to the Apple App Store using Fastlane. Deployment is available for both iOS and macOS platforms. Runs on both macOS and GitHub-hosted macOS runners.
+This module uses Apple's `safari-web-extension-converter` to convert a Web Extension (i.e. Chrome Extension) to a Safari Web Extension, and uploads the native bundle to the Apple App Store using Fastlane. Deployment is available for both iOS and macOS platforms. Runs on both macOS and GitHub-hosted macOS runners. This is the Safari implementation for [Plasmo Browser Platform Publisher](https://github.com/PlasmoHQ/bpp).
 
 Feature includes:
 - TypeScript API, with type exports
 - Pure ECMAScript module
 - Frozen dependencies, updated via renovatebot
 - Support for GitHub-hosted macOS runners
+
+Limitations: 
+- Only supports Manifest V2 extensions (for now)
+- This is beta software that may require handholding and knowledge of Xcode and Fastlane
 
 ## Prerequisites (macOS Big Sur 11.3+)
 - Xcode (versions 13.2.1 or newer) ```xcode-select -s /Applications/Xcode_13.2.app```
@@ -15,85 +19,40 @@ Feature includes:
 - Bundler ```gem install bundler```
 
 ## Usage
-- Create cert storage with Fastlane Match (reference [CodeSigning.guide](https://codesigning.guide/))
+- Create cert storage with Fastlane Match (reference [CodeSigning.guide](https://codesigning.guide/)) from any Mac; you won't need to set this up more than once
 - Create appIds (bundle identifiers) in App Store Connect manually or with Fastlane Produce
     - By default, extension bundle ids will be the same `bundleId` with `.extension` appended
     - Developers can optionally create their own extension bundle id and provide it with the `extensionBundleId` parameter
+    - For [Fastlane Produce](https://docs.fastlane.tools/actions/produce/#features:~:text=in%20the%20Keychain-,Usage,-Creating%20a%20new), install Fastlane to your machine, run `fastlane produce`, and follow the prompts to create a new App through App Store Connect
+- Integrate into your GitHub Actions with [Plasmo BPP](https://github.com/PlasmoHQ/bpp)
 
 ## After App Store delivery
 - Create App Store page metadata
 - Manually submit the build for App Review
-
-## Fastlane GitHub Action Workflow
-```yaml
-jobs:
-  test:
-    runs-on: macos-10.15
-    timeout-minutes: 15
-    steps:
-      - name: Git - Checkout
-        uses: actions/checkout@v3.0.0
-        with:
-          ref: ${{ github.ref }}
-      - name: Setup - Xcode
-        run: xcode-select -s /Applications/Xcode_13.2.app
-      - name: Setup - Ruby and bundler dependencies
-        uses: ruby/setup-ruby@v1.99.0
-        with:
-          bundler-cache: true
-      - name: Safari Webstore Upload
-        run: this-is-the-command
-```
-
-## Node.js API
-
-```ts
-import { SafariWebstoreClient } from "@plasmo-corp/swu"
-
-const client = new SafariWebstoreClient({
-  "bundleId": "com.plasmo.mock",
-  "appName": "Plasmo Mock",
-  "appCategory": "developer-tools",
-  "platforms": ["ios", "macos"],
-  "appleId": "DEVELOPER_APPLE_ID",
-  "teamId": "APPLE_DEVELOPER_TEAM_ID",
-  "teamName": "Plasmo Corp.",
-  "keyId": "APP_STORE_CONNECT_API_KEY_ID",
-  "issuerId": "APP_STORE_CONNECT_API_ISSUER_ID",
-  "key": "APP_STORE_CONNECT_API_KEY",
-  "matchPassword": "YOUR_MATCH_ENCRYPTION_PASSWORD",
-  "matchGitUrl": "YOUR_MATCH_REPO"
-})
-
-
-await client.submit({
-  filePath: zip
-})
-```
 
 # Options
 
 ## App/Bundle Options
 | key | required | description |
 | ----------- | ----------- | ----------- |
-| bundleId | true | |
-| extensionBundleId | false | |
-| appName | true | |
+| bundleId | true | i.e. com.plasmo.mock |
+| extensionBundleId | false | i.e. com.plasmo.mock.extension |
+| appName | true | i.e. Plasmo Mock |
 | appCategory | true | last component of [LSApplicationCategoryType](https://developer.apple.com/documentation/bundleresources/information_property_list/lsapplicationcategorytype) (i.e. business)|
 | platforms | false | defaults to iOS and macOS|
-| buildNumber | false | |
+| buildNumber | false | defaults to GITHUB_RUN_NUMBER |
 
 ## Code Signing Identity
 Read about [Fastlane Appfile](https://docs.fastlane.tools/advanced/Appfile/) options
-| key | required |
+| key | description |
 | ----------- | ----------- |
-| appleId | false |
-| appleDevPortalId | false |
-| teamName | false |
-| teamId | false |
-| itunesConnectId | false |
-| itcTeamName | false |
-| itcTeamId | false |
+| appleId | Your Apple email address |
+| appleDevPortalId | Apple Developer Account email address |
+| teamName | i.e. Plasmo Corp. |
+| teamId | i.e. Q2CBPJ58CA |
+| itunesConnectId | App Store Connect Account email address |
+| itcTeamName | i.e. "Company Name" for Apple IDs in multiple teams |
+| itcTeamId | i.e. "18742801" for Apple IDs in multiple teams |
 
 ## Code Signing Options
 If you want to use custom provisioning profiles that weren't generated in the pattern of Fastlane Match provisioning profiles
@@ -132,8 +91,58 @@ Read about [Fastlane Match](https://docs.fastlane.tools/actions/match/#match:~:t
 ## Debugging Options
 | key | description |
 | ----------- | ----------- |
-| workspace | non-tmp static directory to generate workspace to (for debugging) |
+| workspace | non-tmp static directory to generate workspace to (for file system debugging or project exports) |
 | verbose | toggle more detailed logs |
+
+## GitHub Action Workflow
+```yaml
+jobs:
+  test:
+    runs-on: macos-10.15
+    timeout-minutes: 15
+    steps:
+      - name: Git - Checkout
+        uses: actions/checkout@v3.0.0
+        with:
+          ref: ${{ github.ref }}
+      - name: Setup - Xcode
+        run: xcode-select -s /Applications/Xcode_13.2.app
+      - name: Setup - Ruby and bundler dependencies
+        uses: ruby/setup-ruby@v1.99.0
+        with:
+          bundler-cache: true
+      - name: Safari Webstore Upload via Browser Platform Publish
+        uses: PlasmoHQ/bpp@v2
+        with:
+          keys: ${{ secrets.BPP_KEYS }}
+```
+
+
+## Node.js API
+
+```ts
+import { SafariWebstoreClient } from "@plasmo-corp/swu"
+
+const client = new SafariWebstoreClient({
+  "bundleId": "com.plasmo.mock",
+  "appName": "Plasmo Mock",
+  "appCategory": "developer-tools",
+  "platforms": ["ios", "macos"],
+  "appleId": "DEVELOPER_APPLE_ID",
+  "teamId": "APPLE_DEVELOPER_TEAM_ID",
+  "teamName": "Plasmo Corp.",
+  "keyId": "APP_STORE_CONNECT_API_KEY_ID",
+  "issuerId": "APP_STORE_CONNECT_API_ISSUER_ID",
+  "key": "APP_STORE_CONNECT_API_KEY",
+  "matchPassword": "YOUR_MATCH_ENCRYPTION_PASSWORD",
+  "matchGitUrl": "YOUR_MATCH_REPO"
+})
+
+
+await client.submit({
+  filePath: zip
+})
+```
 
 # Future
 ### Adopt [XcodeGen](https://github.com/yonaskolb/XcodeGen) to simplify project generation and schema management
