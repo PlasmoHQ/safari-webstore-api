@@ -65,7 +65,6 @@ Read about the [App Store Connect API](https://docs.fastlane.tools/app-store-con
 | key | required |
 | ----------- | ----------- |
 | keyId | true |
-| appleDevPortalId | true |
 | issuerId | true |
 | duration | false |
 
