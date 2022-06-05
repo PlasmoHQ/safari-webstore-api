@@ -62,11 +62,12 @@ If you want to use custom provisioning profiles that weren't generated in the pa
 
 ## App Store Connect API Key
 Read about the [App Store Connect API](https://docs.fastlane.tools/app-store-connect-api/)
-| key | required |
-| ----------- | ----------- |
-| keyId | true |
-| issuerId | true |
-| duration | false |
+| key | required | description |
+| ----------- | ----------- | ----------- |
+| keyId | true | i.e. "D383SF739" |
+| key | true | i.e. "-----BEGIN PRIVATE KEY-----\nMIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHknlhdlYdLu\n-----END PRIVATE KEY-----"|
+| issuerId | true | i.e. "6053b7fe-68a8-4acb-89be-165aa6465141" |
+| duration | false | optional (maximum 1200) | 
 
 ## Fastlane Match Options
 Read about [Fastlane Match](https://docs.fastlane.tools/actions/match/#match:~:text=alias%20for%20%22sync_code_signing%22-,Parameters,-Key) options
