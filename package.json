@@ -1,9 +1,9 @@
 {
-  "name": "@plasmo-corp/swu",
+  "name": "@plasmohq/safari-publisher",
   "version": "1.0.0",
-  "description": "Safari Webstore Upload",
+  "description": "Safari Web Extension Publisher",
   "exports": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.ts", 
   "type": "module",
   "files": [
     "dist"
@@ -24,7 +24,7 @@
   "author": "Plasmo Corp. <support@plasmo.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/plasmo-corp/qtt.git"
+    "url": "https://github.com/PlasmoHQ/safari-publisher.git"
   },
   "license": "MIT",
   "keywords": [
