@@ -2,16 +2,19 @@
  * @type {import('@jest/types').Config.InitialOptions}
  */
 
- const config = {
+const config = {
   testTimeout: 60000 * 5, // Test can run for 5 minutes
 
   clearMocks: true,
   moduleFileExtensions: ["js", "ts"],
-  preset: "ts-jest/presets/default-esm",
-  globals: {
-    "ts-jest": {
-      useESM: true
-    }
+  extensionsToTreatAsEsm: [".ts"],
+  transform: {
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        useESM: true
+      }
+    ]
   },
   testMatch: ["**/*.test.ts"],
   verbose: true,
