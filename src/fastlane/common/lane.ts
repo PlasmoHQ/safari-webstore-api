@@ -1,13 +1,10 @@
+import { ExecOptions, FastlaneExec } from "~fastlane/common/exec"
 
-import { FastlaneExec, ExecOptions } from "~fastlane/common/exec"
-
-export type LaneOptions = ExecOptions & {
-  
-}
+export type LaneOptions = ExecOptions & {}
 
 export class Lane extends FastlaneExec {
   name: string
-  
+
   constructor(name: string, options?: LaneOptions) {
     super(options)
     this.name = name

@@ -1,5 +1,5 @@
-
 import fs from "fs-extra"
+
 import { getLogger } from "~util/logging"
 
 const log = getLogger()
@@ -21,13 +21,15 @@ export abstract class ConfigFile {
     const content = JSON.stringify(json)
     return await this.writeFile(path, content)
   }
-  
+
   async writeRuby(params: {}, path: string): Promise<string> {
-    const content = Object.entries(params).reduce((acc, entry) => {
-      const [key, value] = entry
-      if (key && value != null) acc.push(rubyGenerator(key, value))
-      return acc
-    }, []).join("\n")
+    const content = Object.entries(params)
+      .reduce((acc, entry) => {
+        const [key, value] = entry
+        if (key && value != null) acc.push(rubyGenerator(key, value))
+        return acc
+      }, [])
+      .join("\n")
     return await this.writeFile(path, content)
   }
 
@@ -48,10 +50,10 @@ const rubyGenerator = (key, value): string => {
 
 const wrapped = (operand: any, indent: number = 0): string => {
   const types = {
-    "object": (operand) => wrappedObject(operand, indent),
-    "boolean": (operand) => operand.toString(),
-    "number": (operand) => operand.toString(),
-    "string": (operand) => `"${operand}"`
+    object: (operand) => wrappedObject(operand, indent),
+    boolean: (operand) => operand.toString(),
+    number: (operand) => operand.toString(),
+    string: (operand) => `"${operand}"`
   }
   const type = types[typeof operand]
   return type(operand)
@@ -61,13 +63,15 @@ const wrappedObject = (object: any, spaces: number = 0): string => {
   const indent = " ".repeat(spaces)
   const nextIndent = indent + "  "
   if (Array.isArray(object)) {
-    const stringifiedArray = object.map((value) => {
-      return `${nextIndent}${wrapped(value, spaces+2)}`
-    }).join(",\n")
+    const stringifiedArray = object
+      .map((value) => {
+        return `${nextIndent}${wrapped(value, spaces + 2)}`
+      })
+      .join(",\n")
     return `[\n${stringifiedArray}\n${indent}]`
   } else {
     const stringifiedObject = kvMap(object, (key, value) => {
-      return `${nextIndent}${key}: ${wrapped(value, spaces+2)}`
+      return `${nextIndent}${key}: ${wrapped(value, spaces + 2)}`
     }).join(",\n")
     return `{\n${stringifiedObject}\n${indent}}`
   }

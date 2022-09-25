@@ -1,15 +1,13 @@
-
 import { XCRun } from "~xcode/xcrun/xcrun"
 
 export class XcodeBuild extends XCRun {
-
   async list() {
-    const json = await this.run(['-list', '-json'])
-    return JSON.parse(json)
+    const { stdout } = await this.run(["-list", "-json"])
+    return JSON.parse(stdout)
   }
-  
+
   private async run(args: string[] = []) {
-    return this.exec(['xcodebuild'].concat(args))
+    return this.exec(["xcodebuild"].concat(args))
   }
 }
 

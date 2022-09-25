@@ -1,9 +1,8 @@
-
-import { spawn } from "~util/process"
+import spawnAsync from "@expo/spawn-async"
 
 export type ExecOptions = {
-  cwd?: string,
-  env?: { [key: string]: string }
+  cwd?: string
+  env?: Record<string, string>
 }
 
 export class FastlaneExec {
@@ -14,16 +13,19 @@ export class FastlaneExec {
   }
 
   async exec(args: string[], params: {} = {}) {
-    return await spawn('bundle', [
-      'exec', 'fastlane'
-    ].concat(args, reduceParams(params)), this._options) 
+    return await spawnAsync(
+      "bundle",
+      ["exec", "fastlane", ...args, ...reduceParams(params)],
+      this._options
+    )
   }
 }
 
 const reduceParams = (params: {} = {}) => {
-  return Object.entries(params).reduce((acc, entry) => {
-    const [key, value] = entry
-    if (value !== undefined) acc.push(`${key}:${value}`)
+  return Object.entries(params).reduce((acc, [key, value]) => {
+    if (value !== undefined) {
+      acc.push(`${key}:${value}`)
+    }
     return acc
   }, [])
 }

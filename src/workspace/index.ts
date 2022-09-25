@@ -1,10 +1,15 @@
+import spawnAsync from "@expo/spawn-async"
+import { copySync, ensureDir } from "fs-extra"
 
-import fs from "fs-extra"
-import { spawn } from '~util/process'
-import { tmp } from '~util/file'
-import { getLogger } from '~util/logging'
+import { tmp } from "~util/file"
+import { getLogger } from "~util/logging"
+import { Extension } from "~workspace/extension"
 import { XcodeProject, XcodeWorkspace } from "~xcode/"
-import { Extension } from '~workspace/extension'
+
+// TODO:
+// Purge all the logger and use our own
+// Find a way to inline all the fastlane/ruby stuffs
+// refactor some of the unused class to be straightforward fx calls
 
 const log = getLogger()
 
@@ -16,7 +21,7 @@ export class Workspace {
   constructor(path?: string) {
     this.path = path
   }
-  
+
   async assemble(zipPath: string) {
     if (this.path) await this.validate()
     else this.path = await this.create()
@@ -27,7 +32,7 @@ export class Workspace {
   // user provided workspace (bring your own ruby and fastfile)
   private async validate(): Promise<string> {
     log.debug("Validating provided workspace...")
-    await fs.ensureDir(this.path)
+    await ensureDir(this.path)
     await this.validateXcode()
     return this.path
   }
@@ -54,7 +59,7 @@ export class Workspace {
 
   private async create(): Promise<string> {
     log.debug("Creating tmp directory...")
-    const dir = await tmp('plasmo-safari')
+    const dir = await tmp("plasmo-safari")
     log.debug("Created tmp directory at: ", dir)
     return dir
   }
@@ -69,19 +74,19 @@ export class Workspace {
 
   private async generateRuby() {
     log.debug(`Generating Ruby configuration in ${this.path}`)
-    fs.copySync(`${__dirname}/template/ruby`, this.path)
+    copySync(`${__dirname}/template/ruby`, this.path)
   }
-  
+
   private async generateFastlane() {
     log.info("Generating Fastlane configuration...")
-    fs.copySync(`${__dirname}/template/fastlane`, `${this.path}/fastlane`)
+    copySync(`${__dirname}/template/fastlane`, `${this.path}/fastlane`)
     log.info("Fastlane template generated")
   }
 
   private async installRubyDependencies() {
     log.info("Installing Ruby dependencies...")
     const cwd = this.path
-    await spawn('bundle', ['install'], { cwd })
+    await spawnAsync("bundle", ["install"], { cwd })
     log.success("Ruby dependencies installed")
   }
 }

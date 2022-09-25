@@ -1,5 +1,4 @@
-
-import { spawn } from "~util/process"
+import spawnAsync from "@expo/spawn-async"
 
 export class XCRun {
   cwd: string
@@ -7,8 +6,8 @@ export class XCRun {
   constructor(cwd: string) {
     this.cwd = cwd
   }
-  
+
   async exec(args: string[] = []) {
-    return await spawn('xcrun', args, { cwd: this.cwd })
+    return await spawnAsync("xcrun", args, { cwd: this.cwd })
   }
 }

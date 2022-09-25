@@ -1,6 +1,6 @@
+import { readJson } from "fs-extra"
 
-import fs from "fs-extra"
-import { getLogger } from '~util/logging'
+import { getLogger } from "~util/logging"
 
 const log = getLogger()
 
@@ -24,12 +24,13 @@ export class Manifest {
     this.background = options.background
     this.version = options.version
 
-    if (this.manifest_version !== 2) throw new Error("only manifest v2 is supported")
+    if (this.manifest_version !== 2)
+      throw new Error("only manifest v2 is supported")
   }
 
   static async fromFile(filePath: string): Promise<Manifest> {
     log.debug("Reading manifest at: ", filePath)
-    const json = await fs.readJson(filePath)
+    const json = await readJson(filePath)
     return new Manifest(json)
   }
 }

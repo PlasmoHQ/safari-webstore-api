@@ -1,4 +1,3 @@
-
 import type { Platform } from "./platform"
 
 export class Target {
@@ -8,7 +7,7 @@ export class Target {
 
   constructor(name: string, target: string) {
     this.name = target
-    this.platform = target.endsWith('(iOS)') ? 'ios' : 'macos'
-    this.extension = target.split(`${name} `)[1].startsWith('Extension')
+    this.platform = target.endsWith("(iOS)") ? "ios" : "macos"
+    this.extension = target.split(`${name} `)[1].startsWith("Extension")
   }
 }

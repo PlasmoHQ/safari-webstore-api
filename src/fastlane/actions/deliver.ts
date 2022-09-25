@@ -1,11 +1,10 @@
-
 import { Action, ActionOptions } from "~fastlane/common/action"
 import { getLogger } from "~util/logging"
 
 const log = getLogger()
 
 export type DeliverOptions = {
-  ipa?: string,
+  ipa?: string
   pkg?: string
 }
 
@@ -19,9 +18,11 @@ export class DeliverAction extends Action {
 
   async upload() {
     const { ipa, pkg } = this.options
-    log.info("Executing Fastlane Deliver to upload binaries to App Store Connect...")
-    await super.run([], { 
-      force: true, 
+    log.info(
+      "Executing Fastlane Deliver to upload binaries to App Store Connect..."
+    )
+    await super.run([], {
+      force: true,
       automatic_release: false,
       submit_for_review: false,
       skip_screenshots: true,

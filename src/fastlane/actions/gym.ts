@@ -1,4 +1,3 @@
-
 import { Action, ActionOptions } from "~fastlane/common/action"
 import { getLogger } from "~util/logging"
 
@@ -10,13 +9,13 @@ export type GymOptions = {
 }
 
 export type GymOutput = {
-  ipa: string,
+  ipa: string
   pkg: string
 }
 
 export class GymAction extends Action {
   options?: GymOptions
-  
+
   constructor(options: GymOptions, actionOptions: ActionOptions) {
     super("gym", actionOptions)
     this.options = options
@@ -31,7 +30,8 @@ export class GymAction extends Action {
       log.debug(`Building ${scheme} for platform ${platform}...`)
       const export_options = `./ExportOptions.${platform}.plist`
       const output_directory = "./build"
-      if (platform === 'ios') output.ipa = `${output_directory}/${output_name}.ipa`
+      if (platform === "ios")
+        output.ipa = `${output_directory}/${output_name}.ipa`
       else output.pkg = `${output_directory}/${output_name}.pkg`
       await super.run([], {
         scheme,

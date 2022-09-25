@@ -1,6 +1,7 @@
-import {  test } from "@jest/globals"
+import { test } from "@jest/globals"
 import { readFile } from "fs/promises"
-import { SafariPublisher, Options } from "~index"
+
+import { Options, SafariPublisher } from "~index"
 
 test("test upload test.zip artifact", async () => {
   const key = JSON.parse(await readFile("key.json", "utf8")) as Options

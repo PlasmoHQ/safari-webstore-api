@@ -1,5 +1,4 @@
-
-import consola from 'consola'
+import consola from "consola"
 import { Transform, TransformCallback } from "stream"
 
 export const enableVerboseLogging = () => {
@@ -18,7 +17,11 @@ export class LogStream extends Transform {
     this.log = getLogger().debug
   }
 
-  _transform(chunk: any, encoding: BufferEncoding, callback: TransformCallback): void {
+  _transform(
+    chunk: any,
+    encoding: BufferEncoding,
+    callback: TransformCallback
+  ): void {
     this.log(chunk.toString())
     callback(null, chunk)
   }

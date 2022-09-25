@@ -1,15 +1,14 @@
-
-import tmpAsync from "tmp"
-import unzipper from "unzipper"
 import fs from "fs-extra"
 import path from "path"
+import tmpAsync from "tmp"
+import unzipper from "unzipper"
 
 export const extractZip = (filePath: string, dest: string): Promise<void> => {
   return new Promise((resolve, reject) => {
     fs.createReadStream(filePath)
       .pipe(unzipper.Extract({ path: dest }))
-      .on('error', reject)
-      .on('close', resolve)
+      .on("error", reject)
+      .on("close", resolve)
   })
 }
 
@@ -24,7 +23,11 @@ export const tmp = (prefix: string): Promise<string> => {
 }
 
 // recursive ls with relative paths
-export const ls = async (dir: string, maxDepth?: number, relative: string = ""): Promise<string[]> => {
+export const ls = async (
+  dir: string,
+  maxDepth?: number,
+  relative: string = ""
+): Promise<string[]> => {
   type Path = string | string[]
   const files = await fs.readdir(dir)
   const _ls = async (file: string): Promise<Path> => {
@@ -32,7 +35,8 @@ export const ls = async (dir: string, maxDepth?: number, relative: string = ""):
     const relativePath = `${relative}${file}`
     const stat = await fs.lstat(absolutePath)
     const tooDeep = maxDepth && relativePath.split(path.sep).length >= maxDepth
-    if (stat.isDirectory() && !tooDeep) return await ls(absolutePath, maxDepth, `${relativePath}/`)
+    if (stat.isDirectory() && !tooDeep)
+      return await ls(absolutePath, maxDepth, `${relativePath}/`)
     else if (stat.isDirectory()) return `${relativePath}/`
     else return relativePath
   }
@@ -41,12 +45,11 @@ export const ls = async (dir: string, maxDepth?: number, relative: string = ""):
   return paths.flat()
 }
 
-export const emptyDir = async (dir: string): Promise<boolean> => {
-  const length = await fs.readdir(dir).length 
-  return (length === 0)
-}
-
-export const filterFiles = async (dir: string, fn: (filePath: string, depth: number) => boolean, depth?: number) => {
+export const filterFiles = async (
+  dir: string,
+  fn: (filePath: string, depth: number) => boolean,
+  depth?: number
+) => {
   const files = await ls(dir, depth)
   return files.filter((filePath) => {
     const paths = path.normalize(filePath).split(path.sep)
@@ -54,19 +57,39 @@ export const filterFiles = async (dir: string, fn: (filePath: string, depth: num
   })
 }
 
-export const filterFilesByExtName = async (dir: string, ext: string, depth?: number) => {
-  return await filterFiles(dir, (filePath) => {
-    return path.extname(filePath) === ext
-  }, depth)
+export const filterFilesByExtName = async (
+  dir: string,
+  ext: string,
+  depth?: number
+) => {
+  return await filterFiles(
+    dir,
+    (filePath) => {
+      return path.extname(filePath) === ext
+    },
+    depth
+  )
 }
 
-export const findFile = async (dir: string, fn: (filePath: string, depth: number) => boolean, depth?: number) => {
+export const findFile = async (
+  dir: string,
+  fn: (filePath: string, depth: number) => boolean,
+  depth?: number
+) => {
   const files = await filterFiles(dir, fn, depth)
   return files[0]
 }
 
-export const findFileByExtName = async (dir: string, ext: string, depth?: number) => {
-  return await findFile(dir, (filePath) => {
-    return path.extname(filePath) === ext
-  }, depth)
+export const findFileByExtName = async (
+  dir: string,
+  ext: string,
+  depth?: number
+) => {
+  return await findFile(
+    dir,
+    (filePath) => {
+      return path.extname(filePath) === ext
+    },
+    depth
+  )
 }

@@ -1,32 +1,34 @@
-
-import { ConvertWebExtensionAction, ConvertWebExtensionOptions } from "~fastlane/actions/convert"
-import { MatchAction, MatchOptions } from "~fastlane/actions/match"
-import { GymAction, GymOptions, GymOutput } from "~fastlane/actions/gym"
+import {
+  ConvertWebExtensionAction,
+  ConvertWebExtensionOptions
+} from "~fastlane/actions/convert"
 import { DeliverAction, DeliverOptions } from "~fastlane/actions/deliver"
-import { UpdateProjectTeamAction } from "~fastlane/actions/updateProjectTeam"
-import { SetupCIAction } from "~fastlane/actions/setupCI"
-import { getLogger } from "~util/logging"
-import { FastlaneAPIKey, APIKey } from "~fastlane/config/auth"
-import { FastlaneAppfile, Appfile } from "~fastlane/config/appfile"
-import { FastlaneMatchfile, Matchfile } from "~fastlane/config/matchfile"
+import { GymAction, GymOptions, GymOutput } from "~fastlane/actions/gym"
+import { MatchAction, MatchOptions } from "~fastlane/actions/match"
+import { SetupCIAction } from "~fastlane/actions/setup-ci"
+import { UpdateProjectTeamAction } from "~fastlane/actions/update-project-team"
+import { Appfile, FastlaneAppfile } from "~fastlane/config/appfile"
+import { APIKey, FastlaneAPIKey } from "~fastlane/config/auth"
+import { FastlaneDeliverfile } from "~fastlane/config/deliver-file"
 import { FastlaneGymfile, Gymfile } from "~fastlane/config/gymfile"
-import { FastlaneDeliverfile, Deliverfile } from "~fastlane/config/deliverfile"
-import type { Options } from "~/index"
+import { FastlaneMatchfile, Matchfile } from "~fastlane/config/matchfile"
+import { getLogger } from "~util/logging"
 import { XcodeProject, XcodeWorkspace } from "~xcode"
-import { UpdateCodeSigningSettingsAction } from "./actions/updateCodeSigningSettings"
 import type { Platform } from "~xcode/common/platform"
-import { ProvisioningProfile } from "~xcode/common/provisioningProfile"
+import { ProvisioningProfile } from "~xcode/common/provisioning-profile"
 import type { Target } from "~xcode/common/target"
-import { IncrementBuildNumberAction } from "./actions/incrementBuildNumber"
+
+import { IncrementBuildNumberAction } from "./actions/increment-build-number"
+import { UpdateCodeSigningSettingsAction } from "./actions/update-code-signing-settings"
 
 const log = getLogger()
 
 export type FastlaneOptions = {
-  workspace: string,
-  key: APIKey,
-  appfile: Appfile,
-  matchfile: Matchfile,
-  gymfile: Gymfile,
+  workspace: string
+  key: APIKey
+  appfile: Appfile
+  matchfile: Matchfile
+  gymfile: Gymfile
   platforms: Platform[]
 }
 
@@ -43,7 +45,7 @@ export class FastlaneClient {
   async configure() {
     log.info("Configuring Fastlane...")
     const { workspace } = this.options
-    
+
     const appfile = new FastlaneAppfile(this.options.appfile)
     await appfile.persist(workspace)
 
@@ -87,7 +89,8 @@ export class FastlaneClient {
   }
 
   async updateCodeSigningSettings(options: {
-    bundleId: string, extensionBundleId: string
+    bundleId: string
+    extensionBundleId: string
   }) {
     log.info("Updating code signing settings...")
     const cwd = this.options.workspace
@@ -97,7 +100,10 @@ export class FastlaneClient {
     }
   }
 
-  private async updateCodeSigningSettingsForProject(xcodeproj: XcodeProject, options) {
+  private async updateCodeSigningSettingsForProject(
+    xcodeproj: XcodeProject,
+    options
+  ) {
     const { filePath } = xcodeproj
     log.debug(`Updating code signing settings for project at ${filePath}`)
     const targets = await xcodeproj.targets()
@@ -106,14 +112,30 @@ export class FastlaneClient {
     }
   }
 
-  private async updateCodeSigningSettingsForTarget(path: string, target: Target, options) {
+  private async updateCodeSigningSettingsForTarget(
+    path: string,
+    target: Target,
+    options
+  ) {
     const cwd = this.options.workspace
-    const bundleId = target.extension ? options.extensionBundleId : options.bundleId
-    log.debug(`Updating code signing settings for target ${target.name} for ${target.platform}`)
-    const profile = new ProvisioningProfile({ platform: target.platform, bundleId })
-    const updateCodeSigning = new UpdateCodeSigningSettingsAction({ 
-      path, targets: [target.name], profile_name: profile.name 
-    }, { cwd })
+    const bundleId = target.extension
+      ? options.extensionBundleId
+      : options.bundleId
+    log.debug(
+      `Updating code signing settings for target ${target.name} for ${target.platform}`
+    )
+    const profile = new ProvisioningProfile({
+      platform: target.platform,
+      bundleId
+    })
+    const updateCodeSigning = new UpdateCodeSigningSettingsAction(
+      {
+        path,
+        targets: [target.name],
+        profile_name: profile.name
+      },
+      { cwd }
+    )
     await updateCodeSigning.update()
   }
 
@@ -123,13 +145,16 @@ export class FastlaneClient {
     log.debug("Updating project teams...")
     for (const xcodeproj of xcodeprojs) {
       const { filePath } = xcodeproj
-      const updateTeam = new UpdateProjectTeamAction({ teamid, path: filePath }, { cwd })
+      const updateTeam = new UpdateProjectTeamAction(
+        { teamid, path: filePath },
+        { cwd }
+      )
       await updateTeam.update()
     }
   }
 
   async match(password: string) {
-    const actionOptions = { 
+    const actionOptions = {
       cwd: this.options.workspace,
       env: { MATCH_PASSWORD: password }
     }
@@ -148,12 +173,16 @@ export class FastlaneClient {
     const xcodeproj = await XcodeProject.findPrimaryProject(cwd)
     const { filePath } = xcodeproj
     log.debug("Updating build number...")
-    const incrementBuildNumber = new IncrementBuildNumberAction({ 
-      build_number: buildNumber, xcodeproj: filePath 
-    }, { cwd })
+    const incrementBuildNumber = new IncrementBuildNumberAction(
+      {
+        build_number: buildNumber,
+        xcodeproj: filePath
+      },
+      { cwd }
+    )
     await incrementBuildNumber.increment()
   }
-  
+
   // build and sign app
   async gym(options?: GymOptions): Promise<GymOutput> {
     const actionOptions = { cwd: this.options.workspace }
