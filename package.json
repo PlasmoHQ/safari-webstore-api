@@ -1,6 +1,6 @@
 {
   "name": "@plasmohq/safari-publisher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Safari Web Extension Publisher",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
