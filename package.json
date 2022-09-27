@@ -1,7 +1,7 @@
 {
-  "name": "@plasmohq/safari-publisher",
+  "name": "@plasmohq/safari-webstore-api",
   "version": "1.0.1",
-  "description": "Safari Web Extension Publisher",
+  "description": "Safari Web Extension API",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
@@ -12,10 +12,9 @@
     "node": ">=16.14"
   },
   "scripts": {
-    "start": "node ./dist/index.js --dry-run",
     "dev": "tsup --watch --sourcemap inline",
-    "snapshot": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --updateSnapshot",
     "build": "tsup --dts-resolve",
+    "snapshot": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --updateSnapshot",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles",
     "clean": "rimraf dist",
     "bundler-update": "cd template/ruby && bundle update && rimraf vendor",
