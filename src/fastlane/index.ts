@@ -1,17 +1,21 @@
 import {
   ConvertWebExtensionAction,
-  ConvertWebExtensionOptions
+  type ConvertWebExtensionOptions
 } from "~fastlane/actions/convert"
-import { DeliverAction, DeliverOptions } from "~fastlane/actions/deliver"
-import { GymAction, GymOptions, GymOutput } from "~fastlane/actions/gym"
-import { MatchAction, MatchOptions } from "~fastlane/actions/match"
+import { DeliverAction, type DeliverOptions } from "~fastlane/actions/deliver"
+import {
+  GymAction,
+  type GymOptions,
+  type GymOutput
+} from "~fastlane/actions/gym"
+import { MatchAction, type MatchOptions } from "~fastlane/actions/match"
 import { SetupCIAction } from "~fastlane/actions/setup-ci"
 import { UpdateProjectTeamAction } from "~fastlane/actions/update-project-team"
-import { Appfile, FastlaneAppfile } from "~fastlane/config/appfile"
-import { APIKey, FastlaneAPIKey } from "~fastlane/config/auth"
+import { type Appfile, FastlaneAppfile } from "~fastlane/config/appfile"
+import { type APIKey, FastlaneAPIKey } from "~fastlane/config/auth"
 import { FastlaneDeliverfile } from "~fastlane/config/deliver-file"
-import { FastlaneGymfile, Gymfile } from "~fastlane/config/gymfile"
-import { FastlaneMatchfile, Matchfile } from "~fastlane/config/matchfile"
+import { FastlaneGymfile, type Gymfile } from "~fastlane/config/gymfile"
+import { FastlaneMatchfile, type Matchfile } from "~fastlane/config/matchfile"
 import { getLogger } from "~util/logging"
 import { XcodeProject, XcodeWorkspace } from "~xcode"
 import type { Platform } from "~xcode/common/platform"

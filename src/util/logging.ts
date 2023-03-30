@@ -1,5 +1,5 @@
 import consola from "consola"
-import { Transform, TransformCallback } from "stream"
+import { Transform, type TransformCallback } from "stream"
 
 export const enableVerboseLogging = () => {
   consola.level = Infinity

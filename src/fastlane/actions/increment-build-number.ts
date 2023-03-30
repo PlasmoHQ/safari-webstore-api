@@ -1,18 +1,20 @@
-
-import { Action, ActionOptions } from "~fastlane/common/action"
+import { Action, type ActionOptions } from "~fastlane/common/action"
 import { getLogger } from "~util/logging"
 
 const log = getLogger()
 
 export type IncrementBuildNumberOptions = {
-  xcodeproj: string,
+  xcodeproj: string
   build_number?: number
 }
 
 export class IncrementBuildNumberAction extends Action {
   options: IncrementBuildNumberOptions
 
-  constructor(options: IncrementBuildNumberOptions, actionOptions?: ActionOptions) {
+  constructor(
+    options: IncrementBuildNumberOptions,
+    actionOptions?: ActionOptions
+  ) {
     super("increment_build_number", actionOptions)
     this.options = options
   }
